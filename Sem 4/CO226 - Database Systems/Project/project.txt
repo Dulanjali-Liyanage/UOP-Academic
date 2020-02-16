@@ -1,1 +1,0 @@
-create table Employee(Ssn INT NOT NULL,FirstName VARCHAR(45),LastName VARCHAR(45),Salary INT,bDate DATE,TelePhoneNo INT,Sex ENUM('F','M'),Apt_No VARCHAR(45),Street VARCHAR(45),City VARCHAR(45),JobType VARCHAR(45),WorkedHours VARCHAR(45),PRIMARY KEY(Ssn));
