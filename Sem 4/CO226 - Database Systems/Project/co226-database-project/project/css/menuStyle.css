@@ -1,0 +1,48 @@
+*{
+	margin: 0px;
+	padding: 0px;
+	box-sizing: border-box;
+}
+
+header{
+	background-image:linear-gradient(rgba(0,0,0,0.5),rgba(0,0,0,0.5)), url('../images/various-mexican-food-on-dark-background_23-2147740705.jpg');
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center;
+	height: 100vh;
+}
+
+body{
+	margin-left:30px;
+}
+
+
+#menu{
+	font-family:"Trebuchet MS",Arial,Helvetica,sans-serif;
+color:darkorange;
+	boder-collapse:collapse;
+	width:8px;
+
+}
+
+#menu td,#employee th{
+	boder:1 px solid #ddd;
+	padding:8px;
+}
+
+#menu tr:nth-child(even){
+
+	background-color:#f2f2f2;
+}
+
+#menu tr:hover{
+	background-color:#ddd;
+}
+
+#menu th{
+		padding-top:12px;
+		padding-bottom:12px;
+		text-align:left;
+		background-color:#4CAF50;
+		color:white;
+}

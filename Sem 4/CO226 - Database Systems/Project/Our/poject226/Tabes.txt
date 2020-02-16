@@ -1,0 +1,3 @@
+CREATE TABLE Waiter(ssn INT NOT NULL,no_of_Tables INT,PRIMARY KEY(ssn));
+CREATE TABLE Cleaner(ssn INT NOT NULL,workingArea VARCHAR(45),PRIMARY KEY(ssn));
+CREATE TABLE DeliveryBoy(ssn INT NOT NULL,no_of_Delivers INT,PRIMARY KEY(ssn));

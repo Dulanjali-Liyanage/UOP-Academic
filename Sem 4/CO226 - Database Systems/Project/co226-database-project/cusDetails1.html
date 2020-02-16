@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Office</title>
+
+<link rel="stylesheet" href="css1/update.css">
+<script type="text/javascript" src="cuDetails.js"></script>
+
+<style type="text/css">
+   body{
+   background-image: url(depositphotos_79108092-stock-photo-customer-at-restaurant-blur-background.jpg);
+   background-size: cover;
+   backgorund-position: center;
+   background-attachment: fixed;
+   }
+
+   .clearfix:after{
+    content: ".";
+    visibility: hidden;
+    display: block;
+    height: 0px;
+    clear: both;
+   }
+
+   .row{
+    max-width: 1180px;
+    margin:auto;
+   }
+   .main-nav{
+    float: right;
+    margin-top: 40px;
+    margin-right:-250px;
+
+
+   }
+
+   .main-nav li{
+    display: inline-block;
+    list-style: none;
+    margin-left: 60px;
+   }
+
+   .main-nav li a{
+    padding: 5px 0;
+    color: black;
+
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 90%;
+    font-weight: 100;
+   }
+
+   .main-nav li a:hover{
+    border-bottom: 2px solid #bf55ec;
+   }
+
+
+
+
+
+    .mobile-icon{ display: inline-block;
+      color: darkorange;
+      float: right;
+      margin-top: 30px;
+      margin-right: 20px;
+    }
+
+    .mobile-icon{ display: inline-block;
+      color: darkorange;
+      float: right;
+      margin-top: 30px;
+      margin-right: 10px;
+    }
+
+
+   #ui{
+   background-color: #333
+   padding:0px;
+   margin-top: 40px;
+
+   }
+
+   #ui label,h1{
+   color:balck;
+   }
+
+
+
+  h1{
+    margin: 0;
+    padding: 0 0 20px;
+    text-align: center;
+    font-size: 30px;
+}
+
+
+.form-id {
+  width: 300px;
+  margin: 0 auto;
+  text-align: center;
+  padding-top: 50px;
+}
+
+.value-button {
+  display: inline-block;
+  border: 1px solid #ddd;
+  margin: 0px;
+  width: 40px;
+  height: 20px;
+  text-align: center;
+  vertical-align: middle;
+  padding: 11px 0;
+  background: #eee;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.value-button:hover {
+  cursor: pointer;
+}
+
+.form-id #decrease {
+  margin-right: -4px;
+  border-radius: 8px 0 0 8px;
+}
+
+.form-id #increase {
+  margin-left: -4px;
+  border-radius: 0 8px 8px 0;
+}
+
+.form-id #input-wrap {
+  margin: 0px;
+  padding: 0px;
+}
+
+input#number {
+  text-align: center;
+  border: none;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  margin: 0px;
+  width: 40px;
+  height: 40px;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+
+</style>
+
+</head>
+
+
+<div class="col-lg-3"></div>
+<div class="col-lg-6">
+
+  <nav>
+    <div class="row clearfix">
+
+
+      <ul class="main-nav animated slideInDown" id="check-class">
+        <li><a href="cusView.html">Back to customer view</a></li>
+      </ul>
+      <a href="#" class="mobile-icon"  onclick="slideshow()"> <i class="fa fa-bars"></i> </a>
+      </div>
+      </nav>
+<div id="ui">
+
+<h1>CUSTOMER DETAILS</h1>
+
+<form class="form-group" action = "cusInsert1.php">
+
+
+
+<div class="col-lg-6">
+<label>MENU ID:</label>
+<input type="text" name="menu_id" class="form-control" placeholder="Enter menu id">
+</div>
+
+<div class="col-lg-6">
+<label>NUMBER</label>
+
+  <div class="value-button" id="decrease" onclick="decreaseValue()" value="Decrease Value">-</div>
+  <input type="number" name="number" id="number" value="0" />
+  <div class="value-button" id="increase" onclick="increaseValue()" value="Increase Value">+</div>
+
+</div>
+
+<div class="col-lg-7">
+<label>TELEPHONE:</label>
+<input type="text" name="Telephone" class="form-control" placeholder="Enter Phone number...">
+</div>
+
+<div class="col-lg-7">
+<label>First Name:</label>
+<input type="text" name="firstName" class="form-control" placeholder="Enter first name">
+</div>
+
+<div class="col-lg-6">
+<label>Last Name:</label>
+<input type="text" name="lastName" class="form-control" placeholder="Enter last name">
+</div>
+
+<div class="col-lg-7">
+<label>ADDRESS:</label><br>
+<label>APARTMENT NUMBER:</label>
+<input type="text" name="apart_no" class="form-control" placeholder="Enter apartment number">
+</div>
+
+
+<div class="col-lg-7">
+<label>STREET:</label>
+<input type="text" name="street" class="form-control" placeholder="Enter street">
+</div>
+
+
+
+<div class="col-lg-7">
+<label>CITY:</label>
+<input type="text" name="city" class="form-control" placeholder="Enter city">
+</div>
+
+
+<div class="col-lg-7">
+<label>COST:</label>
+<input type="text" name="cost" class="form-control" placeholder="Enter cost"><br><br>
+</div>
+
+<div class="col-lg-7">
+<label>EMPLOYEE SSN:</label>
+<input type="text" name="empssn" class="form-control" placeholder="Enter Employee ssn"><br><br>
+</div>
+
+
+
+<input type="submit" name="submit" value="Submit" class="btn btn-primary btn-block btn-lg">
+<input type="reset" name="reset" value="Reset" class="btn btn-primary btn-block btn-lg">
+
+</form>
+
+
+</div>
+</div>
+</div>
+
+</body>

@@ -1,0 +1,84 @@
+ CREATE DATABASE Lab3;
+ 
+ CREATE TABLE Customer (Id VARCHAR(25) NOT NULL,First_name VARCHAR(25),Last_name VARCHAR(25),Address1 VARCHAR(25),Address2 VARCHAR(25),Address3 VARCHAR(25),Comments VARCHAR(25),PRIMARY KEY(Id));
+  
+ CREATE TABLE T_Shirt (Order_No INT NOT NULL,pink VARCHAR(10),Red VARCHAR(10),Blue VARCHAR(10),Green VARCHAR(10),Large VARCHAR(10),Medium VARCHAR(10),Small VARCHAR(10));
+ 
+ CREATE TABLE Extra (Item_Id INT PRIMARY KEY REFERENCES Customer(Id) ON DELETE CASCADE,Cap VARCHAR(10),Wrist_band VARCHAR(10));
+ 
+ 
+ 
+ CREATE TABLE Customer_search_T_Shirt (Customer_Id INT NOT NULL,T_Shirt_Oder_No INT NOT NULL);
+ 
+ CREATE TABLE Customer_Oder_Extra (Customer_Id INT NOT NULL,Item_Id INT);
+ 
+ 
+ 
+ 
+ 
+ INSERT INTO Customer VALUES (1,'Dulanjali','Liyanage','Sisila','Handinawatta','Sulthangoda','Nice material');
+ 
+ INSERT INTO Customer VALUES (2,'Ravi','karunarathna','jayangani','Palawatta','Matara','');
+ 
+ INSERT INTO Customer VALUES (3,'Lakmini','Herath','20/B','Nugegoda','Colombo','Hello there nice job');
+ 
+ INSERT INTO Customer VALUES (4,'Meera','karunanayaka','Dulee','Mirisswatta','Gampaha','Nothing to say');
+ 
+ INSERT INTO Customer VALUES (5,'Heshan','Sarachchandra','Due','Peradeniya','Nuwara',NULL);
+ 
+ 
+ 
+ 
+ INSERT INTO T_Shirt_Order VALUES (1,'Pink',NULL,NULL,NULL,'Large',NULL,NULL);
+ 
+ INSERT INTO T_Shirt_Order VALUES (2,NULL,'Red',NULL,NULL,'Large',NULL,NULL);
+ 
+ INSERT INTO T_Shirt_Order VALUES (3,NULL,NULL,'Blue',NULL,NULL,'Medium',NULL);
+ 
+ INSERT INTO T_Shirt_Order VALUES (4,NULL,NULL,NULLL,'Green',NULL,NULL,'Small');
+ 
+ INSERT INTO T_Shirt_Order VALUES (5,NULL,NULL,NULL,'Green',NULL,NULL,'Small');
+ 
+ 
+ 
+ INSERT INTO Extra VALUES (1,'Cap','Wrist_band');
+ 
+ INSERT INTO Extra VALUES (2,'Cap',NULL);
+ 
+ INSERT INTO Extra VALUES (3,'Cap',NULL);
+ 
+ INSERT INTO Extra VALUES (4,NULL,NULL);
+ 
+ INSERT INTO Extra VALUES (5,NULL,'Wrist-band');
+ 
+
+
+ INSERT INTO Customer_search_T_Shirt VALUES (1,1);
+ 
+ INSERT INTO Customer_search_T_Shirt VALUES (2,2);
+ 
+ INSERT INTO Customer_search_T_Shirt VALUES (3,3);
+ 
+ INSERT INTO Customer_search_T_Shirt VALUES (4,4);
+ 
+ INSERT INTO Customer_search_T_Shirt VALUES (5,5);
+ 
+ 
+ 
+ INSERT INTO Customer_Oder_Extra VALUES (1,1);
+ 
+ INSERT INTO Customer_Oder_Extra VALUES (2,2);
+ 
+ INSERT INTO Customer_Oder_Extra VALUES (3,3);
+ 
+ INSERT INTO Customer_Oder_Extra VALUES (4,4);
+ 
+ INSERT INTO Customer_Oder_Extra VALUES (5,5);
+ 
+ 
+ UPDATE Customer SET First_name = 'Dinithi', Last_name = 'Liyanage' WHERE First_name = 'Heshan' AND Last_name = 'Sarachchandra';
+ 
+ DELETE FROM Customer WHERE First_name = 'Dinithi';
+ 
+ 
+ 

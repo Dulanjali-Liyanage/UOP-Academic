@@ -1,0 +1,13 @@
+ CREATE TABLE CUSTOMERS(
+     customer_id INTEGER,
+     menu_id INTEGER,
+     telephone_no INTEGER,
+     apt_no INTEGER,
+     street VARCHAR(45),
+     city VARCHAR(45),
+     type VARCHAR(45),
+     cost DOUBLE,
+     ssn INTEGER,
+     PRIMARY KEY(customer_id,menu_id)
+     );
+     
