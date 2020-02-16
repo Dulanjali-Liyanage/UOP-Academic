@@ -1,0 +1,210 @@
+#include <stdio.h>
+#include "string.h"
+
+/*
+    PREMATHILAKA L.S.W.S.
+    E/15/279
+    CO222
+
+*/
+int maze_size_x = 32, maze_size_y = 32, word_ist_size = 0, mat_limit_x = 0, mat_limit_y = 0;
+
+int size_horizontal(char maze[maze_size_x][maze_size_y], int x, int y) {          //get horizontal space size
+    int size = 0;
+    if (x > 0 && maze[x - 1][y] != '*')return 0;
+    while (maze[x][y] != '*' && x < maze_size_x) {
+        size++;
+        x++;
+    }
+    return size;
+}
+
+int size_vertical(char maze[maze_size_x][maze_size_y], int x, int y) {      //get vertical size
+    int size = 0;
+    if (y > 0 && maze[x][y - 1] != '*')return 0;
+    while (maze[x][y] != '*' && y < maze_size_y) {
+        size++;
+        y++;
+    }
+    return size;
+}
+
+int ok_to_put_h(char maze[maze_size_x][maze_size_y], int x, int y, char *wrd) {    //check availablity horizontal
+    int k = 0;
+    int size = strlen(wrd);
+    int spaces = 0;
+    if (size != size_horizontal(maze, x, y) || (x != 0 && maze[x - 1][y] != '*'))return 0;
+    for (k = 0; k < size; k++) {
+        if (maze[x + k][y] == '#') {
+            spaces = 1;
+        }
+        if (maze[x + k][y] == '#' || maze[x + k][y] == wrd[k]) {
+        } else {
+            return 0;
+        }
+    }
+    //printf(" %d h(%d %d)", spaces, x, y);
+    return 1;
+}
+
+int ok_to_put_v(char maze[maze_size_x][maze_size_y], int x, int y, char *wrd) {    //chack availability to put vertical
+    int k = 0;
+    int size = strlen(wrd);
+    int spaces = 0;
+    if (size != size_vertical(maze, x, y) || (x != 0 && maze[x][y - 1] != '*'))return 0;
+    for (k = 0; k < size; k++) {
+        if (maze[x][y + k] == '#')spaces = 1;
+        if (maze[x][y + k] == '#' || maze[x][y + k] == wrd[k]) {
+        } else {
+            return 0;
+        }
+    }
+    //printf(" %d v(%d %d)", spaces, x, y);
+    return 1;
+}
+
+int placewrdH(char maze[maze_size_x][maze_size_y], char *wrd, int x, int y) {   //place word to horizontal space
+    if (ok_to_put_h(maze, x, y, wrd)) {
+        int i;
+        for (i = 0; i < strlen(wrd); i++) {
+            maze[x + i][y] = wrd[i];
+        }
+        return 1;
+    }
+    return 0;
+}
+
+int
+placewrdV(char maze[maze_size_x][maze_size_y], char *wrd, int x, int y) {               //place word to vertical space
+    if (ok_to_put_v(maze, x, y, wrd)) {
+        int i;
+        for (i = 0; i < strlen(wrd); i++) {
+            maze[x][y + i] = wrd[i];
+        }
+        return 1;
+    }
+    return 0;
+}
+
+int clean_h(char maze[maze_size_x][maze_size_y], int x,
+            int y) {                              //cleane placed horizontal placed word (when not match)
+    int i;
+    for (i = 0; i < size_horizontal(maze, x, y); i++) {
+        if (!maze[x + i][y + 1] || maze[x + i][y + 1] == '*' || maze[x + i][y + 1] == '#')
+            if (!maze[x + i][y - 1] || maze[x + i][y - 1] == '*' || maze[x + i][y - 1] == '#')
+                maze[x + i][y] = '#';
+    }
+}
+
+int clean_v(char maze[maze_size_x][maze_size_y], int x,
+            int y) {                              //cleane placed horizontal placed word (when not match)
+    int i;
+    for (i = 0; i < size_vertical(maze, x, y); i++) {
+        if (!maze[x + 1][y + i] || maze[x + 1][y + i] == '*' || maze[x + 1][y + i] == '#')
+            if (!maze[x - 1][y + i] || maze[x - 1][y + i] == '*' || maze[x - 1][y + i] == '#')
+                maze[x][y + i] = '#';
+    }
+}
+
+int is_maze_full(char maze[maze_size_x][maze_size_y]) {
+    int i, j;
+    for (i = 0; i < maze_size_x; i++) {
+        for (j = 0; j < maze_size_y; j++) {
+            if(maze[i][j]=='#')return 0;
+        }
+
+    }
+    return 1;
+}
+
+int solvewrd(char maze[maze_size_x][maze_size_y], char wrd[32][32],
+             int wrdnum) {                //main recursive solving function
+    char prewrd[] = "             ";
+    int i, j;
+    if (wrdnum == word_ist_size)return 1;
+
+    for (i = 0; i < maze_size_x; i++) {
+        for (j = 0; j < maze_size_y; j++) {
+            if (placewrdH(maze, wrd[wrdnum], i, j)) {
+                if (solvewrd(maze, wrd, wrdnum + 1))
+                    return 1;
+                clean_h(maze, i, j);
+            }
+            if (placewrdV(maze, wrd[wrdnum], i, j)) {
+                if (solvewrd(maze, wrd, wrdnum + 1))
+                    return 1;
+                clean_v(maze, i, j);
+            }
+        }
+    }
+    return 0;
+
+}
+
+void print_maze(char maze[maze_size_x][maze_size_y]) {                              //printup the maze
+    int x = 0, y = 0;
+    for (x = 0; x < mat_limit_x; x++) {
+        for (y = 0; y < mat_limit_y; y++) {
+            printf("%c", maze[x][y]);
+        }
+        printf("\n");
+    }
+
+}
+
+
+int main() {
+    char word_list[32][32];
+    char mat[32][32] =
+            {"********************************", "********************************",
+             "********************************", "********************************",
+             "********************************", "********************************",
+             "********************************", "********************************",
+             "********************************", "********************************",
+             "********************************", "********************************",
+             "********************************", "********************************",
+             "********************************", "********************************",
+             "********************************", "********************************",
+             "********************************", "********************************",
+             "********************************", "********************************",
+             "********************************", "********************************",
+             "********************************", "********************************",
+             "********************************", "********************************",
+             "********************************", "********************************",
+             "********************************", "********************************"
+            };
+
+    int word_cont = 1;
+    char line[32];
+    int i = 0;
+    int raw = 0;
+    mat_limit_y = 0;
+    char buff[32];
+    while (fgets(buff, sizeof(buff), stdin) && strlen(buff) > 1) {
+        for (i = 0; i < strlen(buff) - 1; i++) {
+            mat[raw][i] = buff[i];
+        }
+        if (i > mat_limit_y)
+            mat_limit_y = i;
+        raw++;
+    }
+
+    printf("\n");
+    mat_limit_x = raw;
+    while (fgets(buff, sizeof(buff), stdin) && strlen(buff) > 1) {
+        buff[strlen(buff) - 1] = '\0';
+        strcpy(word_list[word_cont], buff);
+        word_cont++;
+    }
+    word_ist_size = word_cont;
+    //printf("%s", word_list[0]);
+    print_maze(mat);
+
+    if (!solvewrd(mat, word_list, 0) || !is_maze_full(mat)) {
+        printf("\nIMPOSSIBLE!\n");
+    } else {
+        printf("\nSOLVED!\n");
+        print_maze(mat);
+    }
+    return 0;
+}

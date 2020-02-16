@@ -1,0 +1,225 @@
+1) CREATE TABLE Student(Name VARCHAR(20),RegNo INTEGER NOT NULL,GPA DOUBLE,Convo_RegNo INTEGER,Class VARCHAR(50),PRIMARY KEY (RegNo));
+
+mysql> INSERT INTO Student(Name,RegNo,GPA) VALUES ('Sameera',425,3.25);
+Query OK, 1 row affected (0.03 sec)
+
+mysql> INSERT INTO Student(Name,RegNo,GPA) VALUES ('Kasun',210,3.40);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Student(Name,RegNo,GPA) VALUES ('Kalpa',201,3.10);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Student(Name,RegNo,GPA) VALUES ('Chathura',312,3.85);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Student(Name,RegNo,GPA) VALUES ('Lakmali',473,3.75);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Student(Name,RegNo,GPA) VALUES ('Sidath',352,3.30);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Student(Name,RegNo,GPA) VALUES ('Kumudu',111,3.70);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Student(Name,RegNo,GPA) VALUES ('Nalin',456,3.05);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Student(Name,RegNo,GPA) VALUES ('Rohani',324,3.70);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Student(Name,RegNo,GPA) VALUES ('Chithra',231,3.30);
+Query OK, 1 row affected (0.00 sec)
+
+SELECT * FROM Student;
++----------+-------+------+-------------+-------+
+| Name     | RegNo | GPA  | Convo_RegNo | Class |
++----------+-------+------+-------------+-------+
+| Sameera  |   425 | 3.25 |        NULL |  NULL |
+| Kasun    |   210 |  3.4 |        NULL |  NULL |
+| Kalpa    |   201 |  3.1 |        NULL |  NULL |
+| Chathura |   312 | 3.85 |        NULL |  NULL |
+| Lakmali  |   473 | 3.75 |        NULL |  NULL |
+| Sidath   |   352 |  3.3 |        NULL |  NULL |
+| Kumudu   |   111 |  3.7 |        NULL |  NULL |
+| Nalin    |   456 | 3.05 |        NULL |  NULL |
+| Rohani   |   324 |  3.7 |        NULL |  NULL |
+| Chithra  |   231 |  3.3 |        NULL |  NULL |
++----------+-------+------+-------------+-------+
+
+
+2) CREATE TABLE Convocation (Last_Name VARCHAR(20),Address VARCHAR(30),Age INTEGER,RegNo INTEGER,Convo_RegNo INTEGER,FOREIGN KEY (RegNo) REFERENCES Student(RegNo) ON DELETE CASCADE ON UPDATE CASCADE,FOREIGN KEY (Convo_RegNo) REFERENCES Student(Convo_RegNo)ON DELETE CASCADE ON UPDATE CASCADE,PRIMARY KEY (RegNo,Convo_RegNo));
+Query OK, 0 rows affected (0.09 sec)
+
+3) DELIMITER |
+mysql> CREATE PROCEDURE Store4(IN lname VARCHAR(20),IN addr VARCHAR(20),IN age INT,IN reg INT,IN creg INT)
+    -> BEGIN
+    -> INSERT INTO Convocation VALUES(lname,addr,age,reg,creg)
+    -> ;
+    -> UPDATE Student SET Convo_RegNo = creg WHERE RegNo = reg;
+    -> END |
+
+4) CALL Store4('Liyanage','Matara',29,425,1) |
+Query OK, 1 row affected (0.00 sec)
+
+mysql> CALL Store4('Perera','Colombo',28,312,2) |
+Query OK, 1 row affected (0.00 sec)
+
+mysql> CALL Store4('Fernando','Kurunegala',34,473,3) |
+Query OK, 1 row affected (0.00 sec)
+
+mysql> CALL Store4('Perera','Anuradhapura',30,352,4) |
+Query OK, 1 row affected (0.00 sec)
+
+mysql> CALL Store4('Liyanage','Kandy',31,456,5) |
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SELECT * FROM Student|
++----------+-------+------+-------------+-------+
+| Name     | RegNo | GPA  | Convo_RegNo | Class |
++----------+-------+------+-------------+-------+
+| Sameera  |   425 | 3.25 |           1 |  NULL |
+| Kasun    |   210 |  3.4 |        NULL |  NULL |
+| Kalpa    |   201 |  3.1 |        NULL |  NULL |
+| Chathura |   312 | 3.85 |           2 |  NULL |
+| Lakmali  |   473 | 3.75 |           3 |  NULL |
+| Sidath   |   352 |  3.3 |           4 |  NULL |
+| Kumudu   |   111 |  3.7 |        NULL |  NULL |
+| Nalin    |   456 | 3.05 |           5 |  NULL |
+| Rohani   |   324 |  3.7 |        NULL |  NULL |
+| Chithra  |   231 |  3.3 |        NULL |  NULL |
++----------+-------+------+-------------+-------+
+
+mysql> SELECT * FROM Convocation|
++-----------+--------------+------+-------+-------------+
+| Last_Name | Address      | Age  | RegNo | Convo_RegNo |
++-----------+--------------+------+-------+-------------+
+| Liyanage  | Matara       |   29 |   425 |           1 |
+| Perera    | Colombo      |   28 |   312 |           2 |
+| Fernando  | Kurunegala   |   34 |   473 |           3 |
+| Perera    | Anuradhapura |   30 |   352 |           4 |
+| Liyanage  | Kandy        |   31 |   456 |           5 |
++-----------+--------------+------+-------+-------------+
+
+5) mysql> CREATE VIEW Registered
+    -> AS
+    -> SELECT Name,Student.RegNo,GPA,Student.Convo_RegNo,Address,Age FROM Student,Convocation WHERE Student.Convo_RegNo = Convocation.Convo_RegNo AND Student.RegNo = Convocation.RegNo|
+Query OK, 0 rows affected (0.06 sec)
+
+SELECT * FROM Registered|
++----------+-------+------+-------------+--------------+------+
+| Name     | RegNo | GPA  | Convo_RegNo | Address      | Age  |
++----------+-------+------+-------------+--------------+------+
+| Sameera  |   425 | 3.25 |           1 | Matara       |   29 |
+| Chathura |   312 | 3.85 |           2 | Colombo      |   28 |
+| Lakmali  |   473 | 3.75 |           3 | Kurunegala   |   34 |
+| Sidath   |   352 |  3.3 |           4 | Anuradhapura |   30 |
+| Nalin    |   456 | 3.05 |           5 | Kandy        |   31 |
++----------+-------+------+-------------+--------------+------+
+
+6) mysql> ALTER TABLE Convocation
+    -> ALTER Convo_RegNo SET DEFAULT 0|
+Query OK, 0 rows affected (0.66 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+
+
+mysql> INSERT INTO Convocation(RegNo) VALUES(210);
+    -> |
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Convocation(RegNo) VALUES(201)|
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Convocation(RegNo) VALUES(111)|
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Convocation(RegNo) VALUES(324)|
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Convocation(RegNo) VALUES(231)|
+Query OK, 1 row affected (0.00 sec)
+
+
+mysql> CREATE VIEW NotRegistered
+    -> AS
+    -> SELECT Name,Student.RegNo,GPA,Address,Age FROM Student,Convocation WHERE Convocation.Convo_RegNo = 0 AND Convocation.RegNo = Student.RegNo|
+Query OK, 0 rows affected (0.05 sec)
+
+SELECT * FROM NotRegistered|
++---------+-------+------+---------+------+
+| Name    | RegNo | GPA  | Address | Age  |
++---------+-------+------+---------+------+
+| Kasun   |   210 |  3.4 | NULL    | NULL |
+| Kalpa   |   201 |  3.1 | NULL    | NULL |
+| Kumudu  |   111 |  3.7 | NULL    | NULL |
+| Rohani  |   324 |  3.7 | NULL    | NULL |
+| Chithra |   231 |  3.3 | NULL    | NULL |
++---------+-------+------+---------+------+
+
+7) CREATE TABLE LateRegistration (Last_Name VARCHAR(20),Address VARCHAR(30),Age INTEGER,RegNo INTEGER,Convo_RegNo INTEGER,FOREIGN KEY (RegNo) REFERENCES Student(RegNo) ON DELETE CASCADE ON UPDATE CASCADE,FOREIGN KEY (Convo_RegNo) REFERENCES Student(Convo_RegNo)ON DELETE CASCADE ON UPDATE CASCADE,PRIMARY KEY (RegNo,Convo_RegNo))|
+
+8) mysql> CREATE TRIGGER LateReg
+    -> AFTER INSERT ON LateRegistration
+    -> FOR EACH ROW UPDATE Student SET Convo_RegNo = NEW.Convo_RegNo WHERE NEW.RegNo = RegNo|
+Query OK, 0 rows affected (0.07 sec)
+
+
+9) mysql> INSERT INTO LateRegistration VALUES('Karunarathna','Gampaha',31,210,6)|
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO LateRegistration VALUES('Kankanamge','Negambo',29,201,7)|
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO LateRegistration VALUES('Wanigasekara','Matara',30,111,8)|
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO LateRegistration VALUES('Wanigasekara','Jaffna',30,324,9)|
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO LateRegistration VALUES('Ranaweera','Jaffna',32,231,10)|
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SELECT * FROM Student|
++----------+-------+------+-------------+--------+
+| Name     | RegNo | GPA  | Convo_RegNo | Class  |
++----------+-------+------+-------------+--------+
+| Sameera  |   425 | 3.25 |           1 | NULL   |
+| Kasun    |   210 |  3.4 |           6 | NULL   |
+| Kalpa    |   201 |  3.1 |           7 | NULL   |
+| Chathura |   312 | 3.85 |           2 | NULL   |
+| Lakmali  |   473 | 3.75 |           3 | NULL   |
+| Sidath   |   352 |  3.3 |           4 | NULL   |
+| Kumudu   |   111 |  3.7 |           8 | NULL   |
+| Nalin    |   456 | 3.05 |           5 | NULL   |
+| Rohani   |   324 |  3.7 |           9 | NULL   |
+| Chithra  |   231 |  3.3 |          10 | NULL   |
++----------+-------+------+-------------+--------+
+
+
+10) mysql> CREATE PROCEDURE ClassFill()
+    -> BEGIN
+    -> UPDATE Student SET Class = 'First class honors' WHERE GPA >= 3.7;
+    -> UPDATE Student SET Class = ' Second class honors-upper division ' WHERE GPA < 3.7 AND GPA >= 3.3;
+    -> UPDATE Student SET Class = ' Second class honors-lower division ' WHERE GPA < 3.3 AND GPA >= 2.7;
+    -> UPDATE Student SET Class = ' Third class honors ' WHERE GPA < 2.7 AND GPA >= 2.0;
+    -> END|
+Query OK, 0 rows affected (0.00 sec)
+
+CALL ClassFill()|
+Query OK, 0 rows affected (0.00 sec)
+
+SELECT * FROM Student|
++----------+-------+------+-------------+--------------------------------------+
+| Name     | RegNo | GPA  | Convo_RegNo | Class                                |
++----------+-------+------+-------------+--------------------------------------+
+| Sameera  |   425 | 3.25 |           1 |  Second class honors-lower division  |
+| Kasun    |   210 |  3.4 |           6 |  Second class honors-upper division  |
+| Kalpa    |   201 |  3.1 |           7 |  Second class honors-lower division  |
+| Chathura |   312 | 3.85 |           2 |  First class honors                  |
+| Lakmali  |   473 | 3.75 |           3 |  First class honors                  |
+| Sidath   |   352 |  3.3 |           4 |  Second class honors-upper division  |
+| Kumudu   |   111 |  3.7 |           8 |  First class honors                  |
+| Nalin    |   456 | 3.05 |           5 |  Second class honors-lower division  |
+| Rohani   |   324 |  3.7 |           9 |  First class honors                  |
+| Chithra  |   231 |  3.3 |          10 |  Second class honors-upper division  |
++----------+-------+------+-------------+--------------------------------------+

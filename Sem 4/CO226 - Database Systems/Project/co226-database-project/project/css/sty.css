@@ -1,0 +1,134 @@
+body{
+    margin: 0;
+    padding: 0;
+   background: linear-gradient(
+     rgba(0,0,0,0.7),
+     rgba(0,0,0,0.7)
+),
+     url('../images/93038866-cala-comte-bay-ibiza-island-may-17-2017-tables-on-shaded-terrace-of-luxury-coastal-restaurant-on-cal.jpg');
+    background-size: cover;
+    background-position: center;
+    font-family: 'Flamenco', cursive
+
+}
+
+
+.main-content-header{
+	width: 1180px;
+	padding:0 2%;
+	position: absolute;
+	/*border: 1px solid red;*/
+	top: 10%;
+	left: 70%;
+	transform: translate(-50%, -50%);
+
+}
+
+h1{
+	color: #fff;
+	font-size: 400%;
+	word-spacing: 5px;
+	letter-spacing: 3px;
+//	margin-bottom: 20px;
+	text-transform: uppercase;
+	font-weight: lighter;
+}
+
+.clearfix:after{
+	content: ".";
+	visibility: hidden;
+	display: block;
+	height: 0px;
+	clear: both;
+}
+
+.row{
+	max-width: 1180px;
+	margin: 0 auto;
+}
+.but{
+float: left;
+list-style:none;
+margin-top: 200px;
+}
+
+.but li{
+display: inline-block;
+list-style: none;
+}
+
+.but li a{
+color: white;
+text-decoratin: none;
+padding: 20px 30px;
+font-family:"Roboto",sans-serif;
+font-size: 20px;
+}
+
+.but li a:hover{
+border:1px solid white;
+}
+
+.but li.active a{
+border:1px solid white;
+}
+
+.colorchange{
+	animation:  colorchangethapa 1s infinite;
+}
+
+@keyframes colorchangethapa{
+	0%{color: red;}
+	25%{color:darkorange; ;}
+	50%{ color: white; }
+	100%{ color:darkorange;  }
+}
+
+.mobile-icon{display: none;}
+
+
+/*//////// Responsive queries //////////*/
+
+@media only screen and (max-width: 1180px){
+	.main-content-header{
+		width:100%;
+		padding:0 2%;
+	}
+
+	.row{
+		width:100%;
+		padding:0 2%;
+	}
+}
+
+@media only screen and (max-width: 998px){
+	h1{font-size: 200%;}
+}
+
+@media only screen and (max-width: 768px){
+	h1{font-size: 180%;}
+
+	.main-nav{display: none;}
+
+	.mobile-icon{ display: inline-block;
+		color: #fff;
+		float: right;
+		margin-top: 30px;
+		margin-right: 20px;
+	}
+
+	.main-nav{float: left;}
+
+	.main-nav li{
+		display: block;
+		margin-top: 10px;
+	}
+}
+
+@media only screen and (max-width: 480px){
+	.btn-full{
+		margin-bottom: 20px;
+	}
+
+	h1{font-size: 180%;}
+}

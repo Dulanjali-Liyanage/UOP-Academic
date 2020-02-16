@@ -1,0 +1,814 @@
+CREATE DATABASE E15202Lab05;
+USE E15202Lab05;
+CREATE TABLE Movie(M_id INT NOT NULL,Title VARCHAR(30),Year INT NOT NULL,Director VARCHAR(20),PRIMARY KEY(M_id));
+CREATE TABLE Reviewer(R_id INT NOT NULL,Reviewer_Name VARCHAR(20),PRIMARY KEY(R_id));
+
+INSERT INTO Movie VALUES (101,'Gone with the Wind',1939,'Victor Fleming');
+INSERT INTO Movie VALUES (102,'Star Wars',1977,'George Lucas');
+INSERT INTO Movie VALUES (103,'The Sound of Music',1965,'Robert Wise');
+INSERT INTO Movie VALUES (104,'E.T.',1982,'Steven Spielberge');
+INSERT INTO Movie VALUES (105,'Titanic',1997,'James Cameron');
+INSERT INTO Movie VALUES(106,'Snow White',1937,'NULL');
+INSERT INTO Movie VALUES(107,'Avatar',2009,'James Cameron');
+INSERT INTO Movie VALUES(108,'Raiders of the Lost Ark',1981,'Steven Spielberge');
+
+INSERT INTO Reviewer VALUES (201,'Sarah Martinez');
+INSERT INTO Reviewer VALUES (202,'Daniel Lewis');
+INSERT INTO Reviewer VALUES (203,'Brittany Harris');
+INSERT INTO Reviewer VALUES (204,'Mike Anderson');
+INSERT INTO Reviewer VALUES (205,'Chris Jackson');
+INSERT INTO Reviewer VALUES (206,'Elizabeth Thomas');
+INSERT INTO Reviewer VALUES (207,'James Cameron');
+INSERT INTO Reviewer VALUES (208,'Ashley White');
+
+CREATE TABLE Rating (Reviewer_Id INT NOT NULL,Movie_Id INT NOT NULL,Stars INT,Rating_Date VARCHAR(30),
+			FOREIGN KEY (Reviewer_Id) REFERENCES Reviewer(R_id) ON DELETE CASCADE ON UPDATE CASCADE,
+			FOREIGN KEY (Movie_Id) REFERENCES Movie(M_id) ON DELETE CASCADE ON UPDATE CASCADE);
+
+INSERT INTO Rating VALUES (201,101,2,'2011-01-22');
+INSERT INTO Rating VALUES (201,101,4,'2011-01-27');
+INSERT INTO Rating VALUES (202,106,4,'null');
+INSERT INTO Rating VALUES (203,103,2,'2011-01-20');
+INSERT INTO Rating VALUES (203,108,4,'2011-01-12');
+INSERT INTO Rating VALUES (203,108,2,'2011-01-30');
+INSERT INTO Rating VALUES (204,101,3,'2011-01-09');
+INSERT INTO Rating VALUES (205,103,3,'2011-01-27');
+INSERT INTO Rating VALUES (205,104,2,'2011-01-22');
+INSERT INTO Rating VALUES (205,108,4,'null');
+INSERT INTO Rating VALUES (206,107,3,'2011-01-15');
+INSERT INTO Rating VALUES (206,106,5,'2011-01-19');
+INSERT INTO Rating VALUES (207,107,5,'2011-01-20');
+INSERT INTO Rating VALUES (208,104,3,'2011-01-02');
+
+
+
+
+SELECT * FROM Movie;
+
+
+
+SELECT M_Id,Title,Year,Director FROM Movie WHERE Director LIKE 'James Cameron';
+
+
+
+SELECT M_Id,Title,Year,Director FROM Movie WHERE Director LIKE 'James Cameron' HAVING Year >= 2000;
+
+
+
+SELECT Stars FROM Rating;
+
+
+
+SELECT DISTINCT Stars FROM Rating;
+
+
+
+SELECT M_id,Director FROM Movie;
+
+
+
+SELECT M_Id,Title,Year FROM Movie WHERE Director LIKE 'Steven Spielberge';
+
+
+
+SELECT Rating.Reviewer_Id,Rating.Movie_Id,Movie.Title,Movie.Year,Movie.Director,Rating.Stars,Rating.Rating_Date FROM Rating CROSS JOIN Movie WHERE Rating.Movie_Id = Movie.M_id;
+
+
+
+SELECT Movie.M_id,Movie.Title,Rating.Movie_Id,Rating.Reviewer_Id,Rating.Stars FROM Movie CROSS JOIN Rating WHERE Movie.M_id = Rating.Movie_Id;
+
+
+
+SELECT Movie.M_id,Movie.Title,Rating.Reviewer_Id,Rating.Stars FROM Rating,Movie WHERE Movie.M_id = Rating.Movie_Id;
+
+
+
+SELECT Movie.M_Id,Movie.Title,Rating.Reviewer_Id,Rating.Stars FROM Rating,Movie WHERE Movie.M_Id = Rating.Movie_Id HAVING Stars <= 3;
+
+
+
+SELECT Movie.M_Id,Movie.Title,Rating.Reviewer_Id,Rating.Stars FROM Rating,Movie WHERE Movie.M_Id = Rating.Movie_Id HAVING Stars >= 2 AND Stars <= 4;
+
+
+
+SELECT Rating.Reviewer_Id,Movie.M_Id FROM Rating,Movie WHERE Rating.Movie_Id = Movie.M_Id;
+
+
+
+SELECT DISTINCT Rating.Reviewer_Id,Movie.M_Id FROM Rating,Movie WHERE Rating.Movie_Id = Movie.M_Id;
+
+
+
+SELECT Movie.M_id,Movie.Title,Rating.Reviewer_Id,Reviewer.Reviewer_Name,Rating.Stars FROM Rating,Movie,Reviewer WHERE Movie.M_id = Rating.Movie_Id AND Reviewer.R_id = Rating.Reviewer_Id;
+
+
+
+SELECT Movie.M_id,Movie.Title,Rating.Reviewer_Id,Reviewer.Reviewer_Name,Rating.Stars FROM Rating,Movie,Reviewer WHERE Movie.M_id = Rating.Movie_Id AND Reviewer.R_id = Rating.Reviewer_Id HAVING Stars = 5;
+
+
+
+SELECT Movie.Title,Reviewer.Reviewer_Name,Rating.Stars FROM Movie,Reviewer,Rating WHERE Movie.M_id = Rating.Movie_Id AND Reviewer.R_id = Rating.Reviewer_Id AND Rating_Date LIKE 'null';
+
+
+
+SELECT CONCAT(Director,',',Reviewer_Name) AS  WWWW FROM Movie,Reviewer WHERE Director NOT LIKE 'NULL';
+
+
+
+SELECT Reviewer.R_id,Reviewer.Reviewer_Name,Rating.Movie_Id,Rating.Stars,Rating.Rating_Date FROM Reviewer,Rating WHERE Rating.Reviewer_Id = Reviewer.R_id AND UPPER(Reviewer_Name) LIKE UPPER('%Martinez%');
+
+
+
+SELECT Reviewer_Id,Movie_Id,Stars,Rating_Date FROM  Rating WHERE Rating_Date NOT LIKE 'NULL' AND SUBSTR(Rating_Date,9,2) < 10 ;
+
+
+
+SELECT Reviewer_Id,Movie_Id,Stars,Rating_Date FROM  Rating WHERE Rating_Date NOT LIKE 'NULL' AND Rating_Date < '2011-01-10' ;
+
+
+
+
+
+UPDATE Rating SET Stars = Stars + 1 WHERE Reviewer_Id = 203;
+SELECT * FROM Rating WHERE Reviewer_Id = 203;
+
+UPDATE Rating SET Stars = Stars - 1 WHERE Reviewer_Id = 203;
+
+
+
+
+
+SELECT Movie.Title,Reviewer.Reviewer_Name,Rating.Stars FROM Movie,Reviewer,Rating WHERE Movie.M_id = Rating.Movie_Id AND Reviewer.R_id = Rating.Reviewer_Id ORDER BY Movie.Title;
+
+
+
+SELECT Movie.Title,Rating.Stars,Rating.Rating_Date FROM Movie,Rating WHERE Movie.M_id = Rating.Movie_Id ORDER BY Movie.Title;
+SELECT Movie.Title,Rating.Stars,Rating.Rating_Date FROM Movie,Rating WHERE Movie.M_id = Rating.Movie_Id ORDER BY Rating.Stars DESC;
+SELECT Movie.Title,Rating.Stars,Rating.Rating_Date FROM Movie,Rating WHERE Movie.M_id = Rating.Movie_Id ORDER BY Rating.Rating_Date DESC;
+
+
+
+SELECT M_id,Title,Year,Director FROM Movie WHERE Director IN (SELECT Reviewer_Name FROM Reviewer WHERE Reviewer_Name = Director);
+
+
+
+
+mysql> USE E15;
+Database changed
+mysql> CREATE TABLE Movie(M_id INT NOT NULL,Title VARCHAR(30),Year INT NOT NULL,Director VARCHAR(20),PRIMARY KEY(M_id));
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE TABLE Reviewer(R_id INT NOT NULL,Reviewer_Name VARCHAR(20),PRIMARY KEY(R_id));
+Query OK, 0 rows affected (0.05 sec)
+
+mysql>
+mysql> INSERT INTO Movie VALUES (101,'Gone with the Wind',1939,'Victor Fleming');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Movie VALUES (102,'Star Wars',1977,'George Lucas');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Movie VALUES (103,'The Sound of Music',1965,'Robert Wise');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Movie VALUES (104,'E.T.',1982,'Steven Spielberge');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Movie VALUES (105,'Titanic',1997,'James Cameron');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Movie VALUES(106,'Snow White',1937,'NULL');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Movie VALUES(107,'Avatar',2009,'James Cameron');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Movie VALUES(108,'Raiders of the Lost Ark',1981,'Steven Spielberge');
+Query OK, 1 row affected (0.00 sec)
+
+mysql>
+mysql> INSERT INTO Reviewer VALUES (201,'Sarah Martinez');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Reviewer VALUES (202,'Daniel Lewis');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Reviewer VALUES (203,'Brittany Harris');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Reviewer VALUES (204,'Mike Anderson');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Reviewer VALUES (205,'Chris Jackson');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Reviewer VALUES (206,'Elizabeth Thomas');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Reviewer VALUES (207,'James Cameron');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Reviewer VALUES (208,'Ashley White');
+Query OK, 1 row affected (0.00 sec)
+
+mysql>
+mysql> CREATE TABLE Rating (Reviewer_Id INT NOT NULL,Movie_Id INT NOT NULL,Stars INT,Rating_Date VARCHAR(30),
+    -> FOREIGN KEY (Reviewer_Id) REFERENCES Reviewer(R_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    -> FOREIGN KEY (Movie_Id) REFERENCES Movie(M_id) ON DELETE CASCADE ON UPDATE CASCADE);
+Query OK, 0 rows affected (0.12 sec)
+
+mysql>
+mysql> INSERT INTO Rating VALUES (201,101,2,'2011-01-22');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO Rating VALUES (201,101,4,'2011-01-27');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Rating VALUES (202,106,4,'null');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Rating VALUES (203,103,2,'2011-01-20');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Rating VALUES (203,108,4,'2011-01-12');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Rating VALUES (203,108,2,'2011-01-30');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Rating VALUES (204,101,3,'2011-01-09');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Rating VALUES (205,103,3,'2011-01-27');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Rating VALUES (205,104,2,'2011-01-22');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Rating VALUES (205,108,4,'null');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Rating VALUES (206,107,3,'2011-01-15');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Rating VALUES (206,106,5,'2011-01-19');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Rating VALUES (207,107,5,'2011-01-20');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO Rating VALUES (208,104,3,'2011-01-02');
+Query OK, 1 row affected (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql>
+mysql> SELECT * FROM Movie;
++------+-------------------------+------+-------------------+
+| M_id | Title                   | Year | Director          |
++------+-------------------------+------+-------------------+
+|  101 | Gone with the Wind      | 1939 | Victor Fleming    |
+|  102 | Star Wars               | 1977 | George Lucas      |
+|  103 | The Sound of Music      | 1965 | Robert Wise       |
+|  104 | E.T.                    | 1982 | Steven Spielberge |
+|  105 | Titanic                 | 1997 | James Cameron     |
+|  106 | Snow White              | 1937 | NULL              |
+|  107 | Avatar                  | 2009 | James Cameron     |
+|  108 | Raiders of the Lost Ark | 1981 | Steven Spielberge |
++------+-------------------------+------+-------------------+
+8 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT M_Id,Title,Year,Director FROM Movie WHERE Director LIKE 'James Cameron';
++------+---------+------+---------------+
+| M_Id | Title   | Year | Director      |
++------+---------+------+---------------+
+|  105 | Titanic | 1997 | James Cameron |
+|  107 | Avatar  | 2009 | James Cameron |
++------+---------+------+---------------+
+2 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT M_Id,Title,Year,Director FROM Movie WHERE Director LIKE 'James Cameron' HAVING Year >= 2000;
++------+--------+------+---------------+
+| M_Id | Title  | Year | Director      |
++------+--------+------+---------------+
+|  107 | Avatar | 2009 | James Cameron |
++------+--------+------+---------------+
+1 row in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT Stars FROM Rating;
++-------+
+| Stars |
++-------+
+|     2 |
+|     4 |
+|     4 |
+|     2 |
+|     4 |
+|     2 |
+|     3 |
+|     3 |
+|     2 |
+|     4 |
+|     3 |
+|     5 |
+|     5 |
+|     3 |
++-------+
+14 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT DISTINCT Stars FROM Rating;
++-------+
+| Stars |
++-------+
+|     2 |
+|     4 |
+|     3 |
+|     5 |
++-------+
+4 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT M_id,Director FROM Movie;
++------+-------------------+
+| M_id | Director          |
++------+-------------------+
+|  101 | Victor Fleming    |
+|  102 | George Lucas      |
+|  103 | Robert Wise       |
+|  104 | Steven Spielberge |
+|  105 | James Cameron     |
+|  106 | NULL              |
+|  107 | James Cameron     |
+|  108 | Steven Spielberge |
++------+-------------------+
+8 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT M_Id,Title,Year FROM Movie WHERE Director LIKE 'Steven Spielberge';
++------+-------------------------+------+
+| M_Id | Title                   | Year |
++------+-------------------------+------+
+|  104 | E.T.                    | 1982 |
+|  108 | Raiders of the Lost Ark | 1981 |
++------+-------------------------+------+
+2 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT Rating.Reviewer_Id,Rating.Movie_Id,Movie.Title,Movie.Year,Movie.Director,Rating.Stars,Rating.Rating_Date FROM Rating CROSS JOIN Movie WHERE Rating.Movie_Id = Movie.M_id;
++-------------+----------+-------------------------+------+-------------------+-------+-------------+
+| Reviewer_Id | Movie_Id | Title                   | Year | Director          | Stars | Rating_Date |
++-------------+----------+-------------------------+------+-------------------+-------+-------------+
+|         201 |      101 | Gone with the Wind      | 1939 | Victor Fleming    |     2 | 2011-01-22  |
+|         201 |      101 | Gone with the Wind      | 1939 | Victor Fleming    |     4 | 2011-01-27  |
+|         202 |      106 | Snow White              | 1937 | NULL              |     4 | null        |
+|         203 |      103 | The Sound of Music      | 1965 | Robert Wise       |     2 | 2011-01-20  |
+|         203 |      108 | Raiders of the Lost Ark | 1981 | Steven Spielberge |     4 | 2011-01-12  |
+|         203 |      108 | Raiders of the Lost Ark | 1981 | Steven Spielberge |     2 | 2011-01-30  |
+|         204 |      101 | Gone with the Wind      | 1939 | Victor Fleming    |     3 | 2011-01-09  |
+|         205 |      103 | The Sound of Music      | 1965 | Robert Wise       |     3 | 2011-01-27  |
+|         205 |      104 | E.T.                    | 1982 | Steven Spielberge |     2 | 2011-01-22  |
+|         205 |      108 | Raiders of the Lost Ark | 1981 | Steven Spielberge |     4 | null        |
+|         206 |      107 | Avatar                  | 2009 | James Cameron     |     3 | 2011-01-15  |
+|         206 |      106 | Snow White              | 1937 | NULL              |     5 | 2011-01-19  |
+|         207 |      107 | Avatar                  | 2009 | James Cameron     |     5 | 2011-01-20  |
+|         208 |      104 | E.T.                    | 1982 | Steven Spielberge |     3 | 2011-01-02  |
++-------------+----------+-------------------------+------+-------------------+-------+-------------+
+14 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT Movie.M_id,Movie.Title,Rating.Movie_Id,Rating.Reviewer_Id,Rating.Stars FROM Movie CROSS JOIN Rating WHERE Movie.M_id = Rating.Movie_Id;
++------+-------------------------+----------+-------------+-------+
+| M_id | Title                   | Movie_Id | Reviewer_Id | Stars |
++------+-------------------------+----------+-------------+-------+
+|  101 | Gone with the Wind      |      101 |         201 |     2 |
+|  101 | Gone with the Wind      |      101 |         201 |     4 |
+|  106 | Snow White              |      106 |         202 |     4 |
+|  103 | The Sound of Music      |      103 |         203 |     2 |
+|  108 | Raiders of the Lost Ark |      108 |         203 |     4 |
+|  108 | Raiders of the Lost Ark |      108 |         203 |     2 |
+|  101 | Gone with the Wind      |      101 |         204 |     3 |
+|  103 | The Sound of Music      |      103 |         205 |     3 |
+|  104 | E.T.                    |      104 |         205 |     2 |
+|  108 | Raiders of the Lost Ark |      108 |         205 |     4 |
+|  107 | Avatar                  |      107 |         206 |     3 |
+|  106 | Snow White              |      106 |         206 |     5 |
+|  107 | Avatar                  |      107 |         207 |     5 |
+|  104 | E.T.                    |      104 |         208 |     3 |
++------+-------------------------+----------+-------------+-------+
+14 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT Movie.M_id,Movie.Title,Rating.Reviewer_Id,Rating.Stars FROM Rating,Movie WHERE Movie.M_id = Rating.Movie_Id;
++------+-------------------------+-------------+-------+
+| M_id | Title                   | Reviewer_Id | Stars |
++------+-------------------------+-------------+-------+
+|  101 | Gone with the Wind      |         201 |     2 |
+|  101 | Gone with the Wind      |         201 |     4 |
+|  106 | Snow White              |         202 |     4 |
+|  103 | The Sound of Music      |         203 |     2 |
+|  108 | Raiders of the Lost Ark |         203 |     4 |
+|  108 | Raiders of the Lost Ark |         203 |     2 |
+|  101 | Gone with the Wind      |         204 |     3 |
+|  103 | The Sound of Music      |         205 |     3 |
+|  104 | E.T.                    |         205 |     2 |
+|  108 | Raiders of the Lost Ark |         205 |     4 |
+|  107 | Avatar                  |         206 |     3 |
+|  106 | Snow White              |         206 |     5 |
+|  107 | Avatar                  |         207 |     5 |
+|  104 | E.T.                    |         208 |     3 |
++------+-------------------------+-------------+-------+
+14 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT Movie.M_Id,Movie.Title,Rating.Reviewer_Id,Rating.Stars FROM Rating,Movie WHERE Movie.M_Id = Rating.Movie_Id HAVING Stars <= 3;
++------+-------------------------+-------------+-------+
+| M_Id | Title                   | Reviewer_Id | Stars |
++------+-------------------------+-------------+-------+
+|  101 | Gone with the Wind      |         201 |     2 |
+|  103 | The Sound of Music      |         203 |     2 |
+|  108 | Raiders of the Lost Ark |         203 |     2 |
+|  101 | Gone with the Wind      |         204 |     3 |
+|  103 | The Sound of Music      |         205 |     3 |
+|  104 | E.T.                    |         205 |     2 |
+|  107 | Avatar                  |         206 |     3 |
+|  104 | E.T.                    |         208 |     3 |
++------+-------------------------+-------------+-------+
+8 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT Movie.M_Id,Movie.Title,Rating.Reviewer_Id,Rating.Stars FROM Rating,Movie WHERE Movie.M_Id = Rating.Movie_Id HAVING Stars >= 2 AND Stars <= 4;
++------+-------------------------+-------------+-------+
+| M_Id | Title                   | Reviewer_Id | Stars |
++------+-------------------------+-------------+-------+
+|  101 | Gone with the Wind      |         201 |     2 |
+|  101 | Gone with the Wind      |         201 |     4 |
+|  106 | Snow White              |         202 |     4 |
+|  103 | The Sound of Music      |         203 |     2 |
+|  108 | Raiders of the Lost Ark |         203 |     4 |
+|  108 | Raiders of the Lost Ark |         203 |     2 |
+|  101 | Gone with the Wind      |         204 |     3 |
+|  103 | The Sound of Music      |         205 |     3 |
+|  104 | E.T.                    |         205 |     2 |
+|  108 | Raiders of the Lost Ark |         205 |     4 |
+|  107 | Avatar                  |         206 |     3 |
+|  104 | E.T.                    |         208 |     3 |
++------+-------------------------+-------------+-------+
+12 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT Rating.Reviewer_Id,Movie.M_Id FROM Rating,Movie WHERE Rating.Movie_Id = Movie.M_Id;
++-------------+------+
+| Reviewer_Id | M_Id |
++-------------+------+
+|         201 |  101 |
+|         201 |  101 |
+|         202 |  106 |
+|         203 |  103 |
+|         203 |  108 |
+|         203 |  108 |
+|         204 |  101 |
+|         205 |  103 |
+|         205 |  104 |
+|         205 |  108 |
+|         206 |  107 |
+|         206 |  106 |
+|         207 |  107 |
+|         208 |  104 |
++-------------+------+
+14 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT DISTINCT Rating.Reviewer_Id,Movie.M_Id FROM Rating,Movie WHERE Rating.Movie_Id = Movie.M_Id;
++-------------+------+
+| Reviewer_Id | M_Id |
++-------------+------+
+|         201 |  101 |
+|         202 |  106 |
+|         203 |  103 |
+|         203 |  108 |
+|         204 |  101 |
+|         205 |  103 |
+|         205 |  104 |
+|         205 |  108 |
+|         206 |  107 |
+|         206 |  106 |
+|         207 |  107 |
+|         208 |  104 |
++-------------+------+
+12 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT Movie.M_id,Movie.Title,Rating.Reviewer_Id,Reviewer.Reviewer_Name,Rating.Stars FROM Rating,Movie,Reviewer WHERE Movie.M_id = Rating.Movie_Id AND Reviewer.R_id = Rating.Reviewer_Id;
++------+-------------------------+-------------+------------------+-------+
+| M_id | Title                   | Reviewer_Id | Reviewer_Name    | Stars |
++------+-------------------------+-------------+------------------+-------+
+|  101 | Gone with the Wind      |         201 | Sarah Martinez   |     2 |
+|  101 | Gone with the Wind      |         201 | Sarah Martinez   |     4 |
+|  106 | Snow White              |         202 | Daniel Lewis     |     4 |
+|  103 | The Sound of Music      |         203 | Brittany Harris  |     2 |
+|  108 | Raiders of the Lost Ark |         203 | Brittany Harris  |     4 |
+|  108 | Raiders of the Lost Ark |         203 | Brittany Harris  |     2 |
+|  101 | Gone with the Wind      |         204 | Mike Anderson    |     3 |
+|  103 | The Sound of Music      |         205 | Chris Jackson    |     3 |
+|  104 | E.T.                    |         205 | Chris Jackson    |     2 |
+|  108 | Raiders of the Lost Ark |         205 | Chris Jackson    |     4 |
+|  107 | Avatar                  |         206 | Elizabeth Thomas |     3 |
+|  106 | Snow White              |         206 | Elizabeth Thomas |     5 |
+|  107 | Avatar                  |         207 | James Cameron    |     5 |
+|  104 | E.T.                    |         208 | Ashley White     |     3 |
++------+-------------------------+-------------+------------------+-------+
+14 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT Movie.M_id,Movie.Title,Rating.Reviewer_Id,Reviewer.Reviewer_Name,Rating.Stars FROM Rating,Movie,Reviewer WHERE Movie.M_id = Rating.Movie_Id AND Reviewer.R_id = Rating.Reviewer_Id HAVING Stars = 5;
++------+------------+-------------+------------------+-------+
+| M_id | Title      | Reviewer_Id | Reviewer_Name    | Stars |
++------+------------+-------------+------------------+-------+
+|  106 | Snow White |         206 | Elizabeth Thomas |     5 |
+|  107 | Avatar     |         207 | James Cameron    |     5 |
++------+------------+-------------+------------------+-------+
+2 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT Movie.Title,Reviewer.Reviewer_Name,Rating.Stars FROM Movie,Reviewer,Rating WHERE Movie.M_id = Rating.Movie_Id AND Reviewer.R_id = Rating.Reviewer_Id AND Rating_Date LIKE 'null';
++-------------------------+---------------+-------+
+| Title                   | Reviewer_Name | Stars |
++-------------------------+---------------+-------+
+| Snow White              | Daniel Lewis  |     4 |
+| Raiders of the Lost Ark | Chris Jackson |     4 |
++-------------------------+---------------+-------+
+2 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT CONCAT(Director,',',Reviewer_Name) AS  WWWW FROM Movie,Reviewer WHERE Director NOT LIKE 'NULL';
++------------------------------------+
+| WWWW                               |
++------------------------------------+
+| Victor Fleming,Sarah Martinez      |
+| George Lucas,Sarah Martinez        |
+| Robert Wise,Sarah Martinez         |
+| Steven Spielberge,Sarah Martinez   |
+| James Cameron,Sarah Martinez       |
+| James Cameron,Sarah Martinez       |
+| Steven Spielberge,Sarah Martinez   |
+| Victor Fleming,Daniel Lewis        |
+| George Lucas,Daniel Lewis          |
+| Robert Wise,Daniel Lewis           |
+| Steven Spielberge,Daniel Lewis     |
+| James Cameron,Daniel Lewis         |
+| James Cameron,Daniel Lewis         |
+| Steven Spielberge,Daniel Lewis     |
+| Victor Fleming,Brittany Harris     |
+| George Lucas,Brittany Harris       |
+| Robert Wise,Brittany Harris        |
+| Steven Spielberge,Brittany Harris  |
+| James Cameron,Brittany Harris      |
+| James Cameron,Brittany Harris      |
+| Steven Spielberge,Brittany Harris  |
+| Victor Fleming,Mike Anderson       |
+| George Lucas,Mike Anderson         |
+| Robert Wise,Mike Anderson          |
+| Steven Spielberge,Mike Anderson    |
+| James Cameron,Mike Anderson        |
+| James Cameron,Mike Anderson        |
+| Steven Spielberge,Mike Anderson    |
+| Victor Fleming,Chris Jackson       |
+| George Lucas,Chris Jackson         |
+| Robert Wise,Chris Jackson          |
+| Steven Spielberge,Chris Jackson    |
+| James Cameron,Chris Jackson        |
+| James Cameron,Chris Jackson        |
+| Steven Spielberge,Chris Jackson    |
+| Victor Fleming,Elizabeth Thomas    |
+| George Lucas,Elizabeth Thomas      |
+| Robert Wise,Elizabeth Thomas       |
+| Steven Spielberge,Elizabeth Thomas |
+| James Cameron,Elizabeth Thomas     |
+| James Cameron,Elizabeth Thomas     |
+| Steven Spielberge,Elizabeth Thomas |
+| Victor Fleming,James Cameron       |
+| George Lucas,James Cameron         |
+| Robert Wise,James Cameron          |
+| Steven Spielberge,James Cameron    |
+| James Cameron,James Cameron        |
+| James Cameron,James Cameron        |
+| Steven Spielberge,James Cameron    |
+| Victor Fleming,Ashley White        |
+| George Lucas,Ashley White          |
+| Robert Wise,Ashley White           |
+| Steven Spielberge,Ashley White     |
+| James Cameron,Ashley White         |
+| James Cameron,Ashley White         |
+| Steven Spielberge,Ashley White     |
++------------------------------------+
+56 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT Reviewer.R_id,Reviewer.Reviewer_Name,Rating.Movie_Id,Rating.Stars,Rating.Rating_Date FROM Reviewer,Rating WHERE Rating.Reviewer_Id = Reviewer.R_id AND UPPER(Reviewer_Name) LIKE UPPER('%Martinez%');
++------+----------------+----------+-------+-------------+
+| R_id | Reviewer_Name  | Movie_Id | Stars | Rating_Date |
++------+----------------+----------+-------+-------------+
+|  201 | Sarah Martinez |      101 |     2 | 2011-01-22  |
+|  201 | Sarah Martinez |      101 |     4 | 2011-01-27  |
++------+----------------+----------+-------+-------------+
+2 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT Reviewer_Id,Movie_Id,Stars,Rating_Date FROM  Rating WHERE Rating_Date NOT LIKE 'NULL' AND SUBSTR(Rating_Date,9,2) < 10 ;
++-------------+----------+-------+-------------+
+| Reviewer_Id | Movie_Id | Stars | Rating_Date |
++-------------+----------+-------+-------------+
+|         204 |      101 |     3 | 2011-01-09  |
+|         208 |      104 |     3 | 2011-01-02  |
++-------------+----------+-------+-------------+
+2 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT Reviewer_Id,Movie_Id,Stars,Rating_Date FROM  Rating WHERE Rating_Date NOT LIKE 'NULL' AND Rating_Date < '2011-01-10' ;
++-------------+----------+-------+-------------+
+| Reviewer_Id | Movie_Id | Stars | Rating_Date |
++-------------+----------+-------+-------------+
+|         204 |      101 |     3 | 2011-01-09  |
+|         208 |      104 |     3 | 2011-01-02  |
++-------------+----------+-------+-------------+
+2 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql>
+mysql>
+mysql> UPDATE Rating SET Stars = Stars + 1 WHERE Reviewer_Id = 203;
+Query OK, 3 rows affected (0.00 sec)
+Rows matched: 3  Changed: 3  Warnings: 0
+
+mysql> SELECT * FROM Rating WHERE Reviewer_Id = 203;
++-------------+----------+-------+-------------+
+| Reviewer_Id | Movie_Id | Stars | Rating_Date |
++-------------+----------+-------+-------------+
+|         203 |      103 |     3 | 2011-01-20  |
+|         203 |      108 |     5 | 2011-01-12  |
+|         203 |      108 |     3 | 2011-01-30  |
++-------------+----------+-------+-------------+
+3 rows in set (0.00 sec)
+
+mysql>
+mysql> UPDATE Rating SET Stars = Stars - 1 WHERE Reviewer_Id = 203;
+Query OK, 3 rows affected (0.00 sec)
+Rows matched: 3  Changed: 3  Warnings: 0
+
+mysql>
+mysql>
+mysql>
+mysql>
+mysql>
+mysql> SELECT Movie.Title,Reviewer.Reviewer_Name,Rating.Stars FROM Movie,Reviewer,Rating WHERE Movie.M_id = Rating.Movie_Id AND Reviewer.R_id = Rating.Reviewer_Id ORDER BY Movie.Title;
++-------------------------+------------------+-------+
+| Title                   | Reviewer_Name    | Stars |
++-------------------------+------------------+-------+
+| Avatar                  | James Cameron    |     5 |
+| Avatar                  | Elizabeth Thomas |     3 |
+| E.T.                    | Chris Jackson    |     2 |
+| E.T.                    | Ashley White     |     3 |
+| Gone with the Wind      | Sarah Martinez   |     2 |
+| Gone with the Wind      | Sarah Martinez   |     4 |
+| Gone with the Wind      | Mike Anderson    |     3 |
+| Raiders of the Lost Ark | Brittany Harris  |     4 |
+| Raiders of the Lost Ark | Brittany Harris  |     2 |
+| Raiders of the Lost Ark | Chris Jackson    |     4 |
+| Snow White              | Elizabeth Thomas |     5 |
+| Snow White              | Daniel Lewis     |     4 |
+| The Sound of Music      | Brittany Harris  |     2 |
+| The Sound of Music      | Chris Jackson    |     3 |
++-------------------------+------------------+-------+
+14 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT Movie.Title,Rating.Stars,Rating.Rating_Date FROM Movie,Rating WHERE Movie.M_id = Rating.Movie_Id ORDER BY Movie.Title;
++-------------------------+-------+-------------+
+| Title                   | Stars | Rating_Date |
++-------------------------+-------+-------------+
+| Avatar                  |     3 | 2011-01-15  |
+| Avatar                  |     5 | 2011-01-20  |
+| E.T.                    |     3 | 2011-01-02  |
+| E.T.                    |     2 | 2011-01-22  |
+| Gone with the Wind      |     3 | 2011-01-09  |
+| Gone with the Wind      |     2 | 2011-01-22  |
+| Gone with the Wind      |     4 | 2011-01-27  |
+| Raiders of the Lost Ark |     4 | 2011-01-12  |
+| Raiders of the Lost Ark |     2 | 2011-01-30  |
+| Raiders of the Lost Ark |     4 | null        |
+| Snow White              |     5 | 2011-01-19  |
+| Snow White              |     4 | null        |
+| The Sound of Music      |     2 | 2011-01-20  |
+| The Sound of Music      |     3 | 2011-01-27  |
++-------------------------+-------+-------------+
+14 rows in set (0.00 sec)
+
+mysql> SELECT Movie.Title,Rating.Stars,Rating.Rating_Date FROM Movie,Rating WHERE Movie.M_id = Rating.Movie_Id ORDER BY Rating.Stars DESC;
++-------------------------+-------+-------------+
+| Title                   | Stars | Rating_Date |
++-------------------------+-------+-------------+
+| Snow White              |     5 | 2011-01-19  |
+| Avatar                  |     5 | 2011-01-20  |
+| Gone with the Wind      |     4 | 2011-01-27  |
+| Snow White              |     4 | null        |
+| Raiders of the Lost Ark |     4 | 2011-01-12  |
+| Raiders of the Lost Ark |     4 | null        |
+| Gone with the Wind      |     3 | 2011-01-09  |
+| The Sound of Music      |     3 | 2011-01-27  |
+| Avatar                  |     3 | 2011-01-15  |
+| E.T.                    |     3 | 2011-01-02  |
+| Gone with the Wind      |     2 | 2011-01-22  |
+| The Sound of Music      |     2 | 2011-01-20  |
+| Raiders of the Lost Ark |     2 | 2011-01-30  |
+| E.T.                    |     2 | 2011-01-22  |
++-------------------------+-------+-------------+
+14 rows in set (0.00 sec)
+
+mysql> SELECT Movie.Title,Rating.Stars,Rating.Rating_Date FROM Movie,Rating WHERE Movie.M_id = Rating.Movie_Id ORDER BY Rating.Stars DESC;
++-------------------------+-------+-------------+
+| Title                   | Stars | Rating_Date |
++-------------------------+-------+-------------+
+| Snow White              |     5 | 2011-01-19  |
+| Avatar                  |     5 | 2011-01-20  |
+| Gone with the Wind      |     4 | 2011-01-27  |
+| Snow White              |     4 | null        |
+| Raiders of the Lost Ark |     4 | 2011-01-12  |
+| Raiders of the Lost Ark |     4 | null        |
+| Gone with the Wind      |     3 | 2011-01-09  |
+| The Sound of Music      |     3 | 2011-01-27  |
+| Avatar                  |     3 | 2011-01-15  |
+| E.T.                    |     3 | 2011-01-02  |
+| Gone with the Wind      |     2 | 2011-01-22  |
+| The Sound of Music      |     2 | 2011-01-20  |
+| Raiders of the Lost Ark |     2 | 2011-01-30  |
+| E.T.                    |     2 | 2011-01-22  |
++-------------------------+-------+-------------+
+14 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql> SELECT M_id,Title,Year,Director FROM Movie WHERE Director IN (SELECT Reviewer_Name FROM Reviewer WHERE Reviewer_Name = Director);
++------+---------+------+---------------+
+| M_id | Title   | Year | Director      |
++------+---------+------+---------------+
+|  105 | Titanic | 1997 | James Cameron |
+|  107 | Avatar  | 2009 | James Cameron |
++------+---------+------+---------------+
+2 rows in set (0.00 sec)
+
+mysql>
+mysql>
+mysql>
+mysql>
+mysql>
+mysql>

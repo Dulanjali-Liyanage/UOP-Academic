@@ -1,0 +1,4 @@
+CREATE TABLE Manager(ssn INT, startDate DATE, PRIMARY KEY(ssn));
+CREATE TABLE callOperator(ssn INT,startDate DATE, PRIMARY KEY(ssn));
+CREATE TABLE Cashier(ssn INT,targeted_Customers INT, PRIMARY KEY(ssn));
+CREATE TABLE ChiefChef(ssn INT, menu_id INT,PRIMARY KEY(ssn) );

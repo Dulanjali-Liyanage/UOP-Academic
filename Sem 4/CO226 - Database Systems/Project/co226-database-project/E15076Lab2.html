@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+
+
+<head>
+<style>
+
+#margin{
+
+     margin: 10px;
+     border: 0.5px solid black;
+     padding: 25px;
+     width: 700px;
+	 height:600px;}
+  
+	.align{
+		padding:5px; }
+		
+	.row{
+		width:100%;
+		display:block;}
+	
+	.boundry{
+		margin-left:205px;}
+	
+	.inside_rowLeft{
+		text-align:center;
+		width:30%;
+		display:block;
+		float:left;}
+		
+	.inside_rowRight{
+		width:70%;
+		display:block;
+		float:left;}
+		
+	
+	.section{
+		width:75%
+		height:50%;}
+	
+	.center{
+		position:center;}
+		
+	.top{
+		    padding-top:7px;}
+			
+	.top2{
+			
+		    padding-top:53px;
+			text-align:center;}
+	
+	.top3{
+		padding-top:4px;}
+		
+	.top4{
+		padding-top:70px;}	
+			
+	.inline{
+		width:100%;}
+			
+	.left{
+			text-align:left;
+		    width:18%;
+			display:inline;
+			float:left;}
+			
+	.right{
+		text-align:left;
+		width:82%;
+		display:inline;
+			}
+			
+</style>
+</head>
+
+<body>
+<form action="E15076Lab2.php" method="post">
+<div id="margin">
+	<div class="align">
+		<h1>
+			Buy T-shirts Online
+		</h1>
+	
+		<h2>
+			Fill out the form below and click "Order Now" to order
+		</h2>
+	
+	
+		<form>
+		
+			<div class="row">
+				<div class="inside_rowLeft">
+					<b>Search by order number:</b>
+				</div>
+				
+				<div class="inside_rowRight">
+					<input type="text" name="OrderNumber">
+					<input type="button" name="search" value="Search">
+					
+					
+					<div class="top3">
+					</div>
+				
+				</div>
+			</div>
+			
+			
+			
+			<div class="row">
+				<div class="inside_rowLeft">
+					<div class="center">
+						<b>Choose your size:</b>
+					</div>
+				</div>
+				
+				<div class="inside_rowRight">
+					<input type="radio" name="x" value="Small">Small
+					<input type="radio" name="x" value="Medium">Medium
+					<input type="radio" name="x" value="Large">Large
+					
+					
+					<div class="top3">
+					</div>
+				</div>
+				
+			</div>
+			
+			
+			<div class="row">
+				<div class="inside_rowLeft">
+					<b>Choose your color:</b>
+				</div>
+				
+				<div class="inside_rowRight">
+					<select name="colors">
+						<option value="Red">Red</option>
+						<option value="Purple">Purple</option>
+						<option value="Blue">Blue</option>
+						<option value="Greenreen">Green</option>
+					</select>
+					
+					<div class="top3">
+					</div>
+					
+				</div>
+			</div>
+			
+			
+			<div class="row">
+				<div class="inside_rowLeft">
+					<div class="top">
+						<b>Extra items:</b>
+					</div>
+				</div>
+				
+				<div class="inside_rowRight">
+					
+					<input type="checkbox" name="item[]" value="Cap">Cap</input>
+					<br>
+					<input type="checkbox" name="item[]" value="Wrist band" >Wrist band</input>
+				
+					<div class="top3">
+					</div>
+					
+				</div>
+			</div>
+					
+			
+			<div class= "row">
+				<div class="inside_rowLeft">
+					<div class="top2">
+						<b>Deliver to:</b>
+					</div>
+				</div>
+				
+				
+				<div class="inside_rowRight">
+					<div class="inline">
+						<div class="left">
+							<b>First Name:</b>
+						</div>
+					
+						<div class="right">
+							<input type="text" name="firstName">
+						</div>
+					</div>
+					
+					<div class="top3">
+					</div>
+					
+					<div class="inline">
+						<div class="left">
+							<b>Last Name:</b>
+						</div>
+						<div class="right">
+							<input type="text" name="lastName">
+						</div>
+					</div>
+					
+					<div class="top3">
+					</div>
+					
+					<div class="inline">
+						<div class="left">
+							<b>Address1:</b>
+						</div>
+						<div class="right">
+							<input type="text" name="address1">
+						</div>
+					</div>
+					
+					<div class="top3">
+					</div>
+					
+					<div class="inline">
+						<div class="left">
+							<b>Address2:</b>
+						</div>
+						<div class="right">
+							<input type="text" name="address2">
+						</div>
+					</div>
+					
+					
+					<div class="top3">
+					</div>
+					
+					
+					<div class="inline">
+						<div class="left">
+							<b>Address3:</b>
+						</div>
+						<div class="right">
+							<input type="text" name="address3">
+						</div>
+					</div>
+					
+					
+					<div class="top3">
+					</div>
+			
+			
+				</div>
+			</div>
+			
+			
+			
+			<div class="row">
+				<div class="inside_rowLeft">
+					<div class="top4">
+					<b>Your Comments:</b>
+					</div>
+				</div>
+				
+				
+				<div class="inside_rowRight">
+					<textarea name="yourComments" rows="10" cols="50">
+					</textarea>
+					
+					<div class="top3">
+					</div>
+				</div>
+				
+			</div>	
+			
+			<div class="row">
+				<div class="inside_rowRight">
+					<div class="boundry">
+						<input type="submit" value="Order Now">
+					</div>
+				</div>
+			</div>
+				
+</div>	
+</div>
+</form>
+</body>
+ </html>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
