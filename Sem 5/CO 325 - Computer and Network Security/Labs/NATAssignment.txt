@@ -1,0 +1,40 @@
+ciscoasa(config)#interface gigabitEthernet 1/1
+ciscoasa(config-if)#nameif inside
+ciscoasa(config-if)#security-level 100
+ciscoasa(config-if)#ip address 192.168.10.1 255.255.255.0
+ciscoasa(config-if)#no shut
+
+ciscoasa(config)#interface gigabitEthernet 1/2
+ciscoasa(config-if)#nameif outside
+ciscoasa(config-if)#security-level 0
+ciscoasa(config-if)#ip address 172.16.20.1 255.255.255.0
+ciscoasa(config-if)#no shut
+
+ciscoasa(config)#interface gigabitEthernet 1/3
+ciscoasa(config-if)#nameif dmz
+ciscoasa(config-if)#security-level 50
+ciscoasa(config-if)#ip address 172.20.30.1 255.255.255.0
+ciscoasa(config-if)#no shut
+
+inside network pc -> ip : 192.168.10.100/24
+-> gateway : 192.168.10.1/24
+
+outside netwrok pc -> ip : 172.16.20.112/24
+->gateway : 172.16.20.1/24
+
+dmz ssh server -> ip : 172.20.30.100/24
+->gateway : 172.20.30.1/24
+
+-----configure dmz with a mapped static ip for outside-------
+ciscoasa(config)#object network inside-real-server
+ciscoasa(config-network-object)#host 172.20.30.100
+ciscoasa(config-network-object)#nat (dmz,outside) static 172.20.30.3
+
+--------allow ssh access from outside to the dmz mapped host-----
+ciscoasa(config)#access-list out2dmztcpssh extended permit tcp any host 172.20.30.3 eq 22
+ciscoasa(config)#access-group out2dmztcpssh in interface outside
+
+---------allow ssh access from dmz to inside host-------------
+ciscoasa(config)#access-list dmz2insidetcpssh extended permit tcp host 172.20.30.100 host 192.168.10.100 eq 22
+ciscoasa(config)#access-group dmz2insidetcpssh in interface dmz
+
