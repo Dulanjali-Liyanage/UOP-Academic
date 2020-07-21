@@ -1,0 +1,528 @@
+1) select * from employees order by first_name asc;
+(0.41 sec)
+
+
+
+
+
+
+
+
+
+
+2)create index fname_index on company.employees(first_name);
+   select * from employees order by first_name asc;
+300024 rows in set (2.13 sec) ---> it has reduce the performance
+
+(NOTE : Had to force the index if not the index is not applied.)
+explain select * from employees order by first_name asc;
++----+-------------+-----------+------------+------+---------------+------+---------+------+--------+----------+----------------+
+| id | select_type | table     | partitions | type | possible_keys | key  | key_len | ref  | rows   | filtered | Extra          |
++----+-------------+-----------+------------+------+---------------+------+---------+------+--------+----------+----------------+
+|  1 | SIMPLE      | employees | NULL       | ALL  | NULL          | NULL | NULL    | NULL | 300024 |   100.00 | Using filesort |
++----+-------------+-----------+------------+------+---------------+------+---------+------+--------+----------+----------------+
+
+explain select * from employees force index(fname_index) order by first_name asc;
++----+-------------+-----------+------------+-------+---------------+-------------+---------+------+--------+----------+-------+
+| id | select_type | table     | partitions | type  | possible_keys | key         | key_len | ref  | rows   | filtered | Extra |
++----+-------------+-----------+------------+-------+---------------+-------------+---------+------+--------+----------+-------+
+|  1 | SIMPLE      | employees | NULL       | index | NULL          | fname_index | 17      | NULL | 300024 |   100.00 | NULL  |
++----+-------------+-----------+------------+-------+---------------+-------------+---------+------+--------+----------+-------+
+
+
+
+
+
+
+
+
+
+
+
+3) show index from employees;
+index_type = BTREE (binary tree)
+
+
+
+
+
+
+
+
+4)create unique index un_index_emp on company.employees(emp_no,first_name,last_name);
+   select * from employees order by emp_no,first_name,last_name;
+(1.85 sec)
+There is no any performance improvement with respect to question number 1
+
+Reason is there is no where clause. Indexes works better for queries having where clauses.
+If we add a index to this type of simple table it only decreases the performance.
+Retrieving only emp_no,first_name,last_name can increase the performance because it has to check only those.
+Butin here it has to go through all the rows and columns from the above index which makes it difficult.
+
+NOTE :
+
+Although I have created the index named un_index_emp it seems that it is not used.
+
+explain select * from employees order by emp_no,first_name,last_name;
+type : ALL
+possible_keys: NULL
+key : NULL
+Extra : Using filesort
+
+It should be forced.
+explain select * from employees force index(un_index_emp) order by emp_no,first_name,last_name;
++----+-------------+-----------+------------+-------+---------------+--------------+---------+------+--------+----------+-------+
+| id | select_type | table     | partitions | type  | possible_keys | key          | key_len | ref  | rows   | filtered | Extra |
++----+-------------+-----------+------------+-------+---------------+--------------+---------+------+--------+----------+-------+
+|  1 | SIMPLE      | employees | NULL       | index | NULL          | un_index_emp | 40      | NULL | 300024 |   100.00 | NULL  |
++----+-------------+-----------+------------+-------+---------------+--------------+---------+------+--------+----------+-------+
+
+
+
+
+
+
+
+
+
+
+
+
+
+5) 1#) create index from_date_index on company.dept_manager(from_date); ---> simple index that will speed up all 3 queries
+
+Reason is,
+if we run below commands('and' clauses are seperately run to find the number of rows that they affect seperately) we can see the number of rows that they affected
+(A) select distinct emp_no from dept_manager where from_date>='1985-01-01'; ---> 24 rows affected
+(B) select distinct emp_no from dept_manager where from_date>='1996-01-03'; ---> 2 rows affected
+(C) select distinct emp_no from dept_manager where dept_no>='d005'; ---> 14 rows affected
+(D) select distinct emp_no from dept_manager where dept_no<='d009'; ---> 24 rows affected
+
+From the number of rows shown above command (B) will be affected to the lowest number of rows. Other number of rows are comparatively much larger and also the difference of them are comparatively not very high. So it will be efficient for all 3 if we create an index for the attirbute that has the smallest number of rows when retrieved.
+And also dept_no is already added as a  default index since it is a foreign key.s
+
+So the selected attirbute for this simple index will be from_date.
+
+	
+	
+
+
+
+
+
+
+	
+	2#) It is used only in  the query B
+	
+explain select distinct emp_no from dept_manager where from_date>='1996-01-03' and dept_no>='d005';
++----+-------------+--------------+------------+-------+--------------------------------+-----------------+---------+------+------+----------+-----------------------------------------------------+
+| id | select_type | table        | partitions | type  | possible_keys                  | key             | key_len | ref  | rows | filtered | Extra                                               |
++----+-------------+--------------+------------+-------+--------------------------------+-----------------+---------+------+------+----------+-----------------------------------------------------+
+|  1 | SIMPLE      | dept_manager | NULL       | range | PRIMARY,emp_no,from_date_index | from_date_index | 4       | NULL |    3 |    58.33 | Using index condition; Using where; Using temporary |
++----+-------------+--------------+------------+-------+--------------------------------+-----------------+---------+------+------+----------+-----------------------------------------------------+
+
+
+explain select distinct emp_no from dept_manager where from_date>='1985-01-01' and dept_no<='d009';
++----+-------------+--------------+------------+------+--------------------------------+------+---------+------+------+----------+------------------------------+
+| id | select_type | table        | partitions | type | possible_keys                  | key  | key_len | ref  | rows | filtered | Extra                        |
++----+-------------+--------------+------------+------+--------------------------------+------+---------+------+------+----------+------------------------------+
+|  1 | SIMPLE      | dept_manager | NULL       | ALL  | PRIMARY,emp_no,from_date_index | NULL | NULL    | NULL |   24 |   100.00 | Using where; Using temporary |
++----+-------------+--------------+------------+------+--------------------------------+------+---------+------+------+----------+------------------------------+
+
+explain select distinct emp_no from dept_manager where from_date>='1985-01-01' and dept_no>='d005';
++----+-------------+--------------+------------+------+--------------------------------+------+---------+------+------+----------+------------------------------+
+| id | select_type | table        | partitions | type | possible_keys                  | key  | key_len | ref  | rows | filtered | Extra                        |
++----+-------------+--------------+------------+------+--------------------------------+------+---------+------+------+----------+------------------------------+
+|  1 | SIMPLE      | dept_manager | NULL       | ALL  | PRIMARY,emp_no,from_date_index | NULL | NULL    | NULL |   24 |    58.33 | Using where; Using temporary |
++----+-------------+--------------+------------+------+--------------------------------+------+---------+------+------+----------+------------------------------+	
+	
+	The above created index from_date_index is more affected on this query becuase of the reduced number of rows to be searched. And it has considerably high amount of filtered percentage.
+	If an index on attirbute 'dept_no' is created it will not show that much of speed in the 3 queries.
+	
+	If we force the index from_date_index to other 2 (A and C) queries.
+	
+explain select distinct emp_no from dept_manager force index(from_date_index) where from_date>='1985-01-01' and dept_no>='d005';
++----+-------------+--------------+------------+-------+--------------------------------+-----------------+---------+------+------+----------+-----------------------------------------------------+
+| id | select_type | table        | partitions | type  | possible_keys                  | key             | key_len | ref  | rows | filtered | Extra                                               |
++----+-------------+--------------+------------+-------+--------------------------------+-----------------+---------+------+------+----------+-----------------------------------------------------+
+|  1 | SIMPLE      | dept_manager | NULL       | range | PRIMARY,emp_no,from_date_index | from_date_index | 4       | NULL |   24 |    33.33 | Using index condition; Using where; Using temporary |
++----+-------------+--------------+------------+-------+--------------------------------+-----------------+---------+------+------+----------+-----------------------------------------------------+
+
+
+explain select distinct emp_no from dept_manager force index(from_date_index) where from_date>='1985-01-01' and dept_no<='d009';
++----+-------------+--------------+------------+-------+--------------------------------+-----------------+---------+------+------+----------+-----------------------------------------------------+
+| id | select_type | table        | partitions | type  | possible_keys                  | key             | key_len | ref  | rows | filtered | Extra                                               |
++----+-------------+--------------+------------+-------+--------------------------------+-----------------+---------+------+------+----------+-----------------------------------------------------+
+|  1 | SIMPLE      | dept_manager | NULL       | range | PRIMARY,emp_no,from_date_index | from_date_index | 4       | NULL |   24 |    33.33 | Using index condition; Using where; Using temporary |
++----+-------------+--------------+------------+-------+--------------------------------+-----------------+---------+------+------+----------+-----------------------------------------------------+
+It decreases the filtered percentage on both queries. Higher filtered percentage means a good factor in query optimization
+So it is better without the index from_date_index.
+When there is 2 or more indexes it chooses the index that will affected to smallest number of rows, hence the query will speed up.
+
+
+
+
+
+
+
+
+
+
+6) 2#) Here we have to select only last_name attribute from employees table.So creating an index on that attribute will increase the performance.
+
+without index --->
+select last_name,count(last_name) from employees group by last_name order by count(last_name) desc limit 10;
++-----------+------------------+
+| last_name | count(last_name) |
++-----------+------------------+
+| Baba      |              226 |
+| Gelosh    |              223 |
+| Coorg     |              223 |
+| Sudbeck   |              222 |
+| Farris    |              222 |
+| Adachi    |              221 |
+| Osgood    |              220 |
+| Masada    |              218 |
+| Mandell   |              218 |
+| Neiman    |              218 |
++-----------+------------------+
+10 rows in set (0.16 sec)
+
+with index --->
+create index lname_index on employees(last_name);
+	   
+explain select last_name,count(last_name) from employees group by last_name order by count(last_name) desc limit 10;
++----+-------------+-----------+------------+-------+---------------+-------------+---------+------+--------+----------+----------------------------------------------+
+| id | select_type | table     | partitions | type  | possible_keys | key         | key_len | ref  | rows   | filtered | Extra                                        |
++----+-------------+-----------+------------+-------+---------------+-------------+---------+------+--------+----------+----------------------------------------------+
+|  1 | SIMPLE      | employees | NULL       | index | lname_index   | lname_index | 19      | NULL | 300024 |   100.00 | Using index; Using temporary; Using filesort |
++----+-------------+-----------+------------+-------+---------------+-------------+---------+------+--------+----------+----------------------------------------------+	
+
+select last_name,count(last_name) from employees group by last_name order by count(last_name) desc limit 10;
++-----------+------------------+
+| last_name | count(last_name) |
++-----------+------------------+
+| Baba      |              226 |
+| Gelosh    |              223 |
+| Coorg     |              223 |
+| Farris    |              222 |
+| Sudbeck   |              222 |
+| Adachi    |              221 |
+| Osgood    |              220 |
+| Mandell   |              218 |
+| Neiman    |              218 |
+| Masada    |              218 |
++-----------+------------------+
+10 rows in set (0.07 sec) ---> performance has increased	
+	
+	
+
+
+
+
+
+
+	
+	3#) without index ---> 
+explain select dept_no,count(emp_no) from dept_emp where emp_no in (select emp_no from titles where title='Engineer' or title='Senior Engineer') group by dept_no;
++----+--------------+-------------+------------+--------+-----------------+------------+---------+-------------------------+--------+----------+-----------------------------------------------------------+
+| id | select_type  | table       | partitions | type   | possible_keys   | key        | key_len | ref                     | rows   | filtered | Extra                                                     |
++----+--------------+-------------+------------+--------+-----------------+------------+---------+-------------------------+--------+----------+-----------------------------------------------------------+
+|  1 | SIMPLE       | dept_emp    | NULL       | index  | PRIMARY,dept_no | PRIMARY    | 8       | NULL                    | 331603 |   100.00 | Using where; Using index; Using temporary; Using filesort |
+|  1 | SIMPLE       | <subquery2> | NULL       | eq_ref | <auto_key>      | <auto_key> | 4       | company.dept_emp.emp_no |      1 |   100.00 | NULL                                                      |
+|  2 | MATERIALIZED | titles      | NULL       | range  | PRIMARY,emp_no  | PRIMARY    | 52      | NULL                    | 214875 |   100.00 | Using where; Using index                                  |
++----+--------------+-------------+------------+--------+-----------------+------------+---------+-------------------------+--------+----------+-----------------------------------------------------------+
+
+	with index ---> 
+	It already has the highest filtered percentage although it has large number of rows to be checked.
+	Creating an index on any of attribute will not make any difference in performance.
+	So this query do not need any index to be use.
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	4#) without index ---->
+explain select emp_no,first_name,last_name from employees where emp_no in (select distinct emp_no from titles where title='Senior Engineer' and emp_no in (select emp_no from dept_manager where emp_no in (select emp_no from employees where sex='F')));
++----+----+-------------+--------------+------------+--------+----------------+---------+---------+-----------------------------------+------+----------+------------------------------+
+| id | select_type | table        | partitions | type   | possible_keys  | key     | key_len | ref                               | rows | filtered | Extra                        |
++----+-------------+--------------+------------+--------+----------------+---------+---------+-----------------------------------+------+----------+------------------------------+
+|  1 | SIMPLE      | dept_manager | NULL       | index  | emp_no         | emp_no  | 4       | NULL                              |   24 |   100.00 | Using index; Start temporary |
+|  1 | SIMPLE      | titles       | NULL       | eq_ref | PRIMARY,emp_no | PRIMARY | 56      | const,company.dept_manager.emp_no |    1 |   100.00 | Using index                  |
+|  1 | SIMPLE      | employees    | NULL       | eq_ref | PRIMARY        | PRIMARY | 4       | company.dept_manager.emp_no       |    1 |   100.00 | NULL                         |
+|  1 | SIMPLE      | employees    | NULL       | eq_ref | PRIMARY        | PRIMARY | 4       | company.dept_manager.emp_no       |    1 |    50.00 | Using where; End temporary   |
++----+-------------+--------------+------------+--------+----------------+---------+---------+-----------------------------------+------+----------+------------------------------+
+
+The number of rows affected is very low. And also filtered percentage is considarably high. So adding any index will only increase this number of rows and reduce the filtered percentage. Hence slow down the query.
+Here we can create an index like in question 3 but it also do not make any performance improvemnet. Because again it has to check for 3 columns.
+Therefore final decision is ,this query do not need any indexes.
+
+
+
+
+
+
+
+	
+	
+	5#) without index --->
+explain select titles.emp_no,dept_no,title from (dept_emp join titles on dept_emp.emp_no = titles.emp_no) where titles.emp_no in (select emp_no from salaries where salary > 115000);
++----+--------------+-------------+------------+------+---------------+---------+---------+--------------------+--------+----------+-------------+
+| id | select_type  | table       | partitions | type | possible_keys | key     | key_len | ref                | rows   | filtered | Extra       |
++----+--------------+-------------+------------+------+---------------+---------+---------+--------------------+--------+----------+-------------+
+|  1 | SIMPLE       | <subquery2> | NULL       | ALL  | NULL          | NULL    | NULL    | NULL               |   NULL |   100.00 | NULL        |
+|  1 | SIMPLE       | titles      | NULL       | ref  | emp_no        | emp_no  | 4       | <subquery2>.emp_no |      1 |   100.00 | NULL        |
+|  1 | SIMPLE       | dept_emp    | NULL       | ref  | PRIMARY       | PRIMARY | 4       | <subquery2>.emp_no |   3316 |   100.00 | Using index |
+|  2 | MATERIALIZED | salaries    | NULL       | ALL  | emp_no        | NULL    | NULL    | NULL               | 946986 |    33.33 | Using where |
++----+--------------+-------------+------------+------+---------------+---------+---------+--------------------+--------+----------+-------------+
+
+explain select distinct dept_no,count(emp_no) from dept_emp where emp_no in (select emp_no from salaries where salary > 115000) group by dept_no;
++----+--------------+-------------+------------+--------+---------------+------------+---------+-------------------------+--------+----------+-----------------------------------------------------------+
+| id | select_type  | table       | partitions | type   | possible_keys | key        | key_len | ref                     | rows   | filtered | Extra                                                     |
++----+--------------+-------------+------------+--------+---------------+------------+---------+-------------------------+--------+----------+-----------------------------------------------------------+
+|  1 | SIMPLE       | dept_emp    | NULL       | index  | PRIMARY       | PRIMARY    | 8       | NULL                    | 331603 |   100.00 | Using where; Using index; Using temporary; Using filesort |
+|  1 | SIMPLE       | <subquery2> | NULL       | eq_ref | <auto_key>    | <auto_key> | 4       | company.dept_emp.emp_no |      1 |   100.00 | NULL                                                      |
+|  2 | MATERIALIZED | salaries    | NULL       | ALL    | NULL          | NULL       | NULL    | NULL                    | 946986 |    33.33 | Using where                                               |
++----+--------------+-------------+------------+--------+---------------+------------+---------+-------------------------+--------+----------+-----------------------------------------------------------+
+
+			Here in above 2 queries, salaries table has to check for large number of rows to get the output
+			
+			with index --->
+			create index index_salary on salaries(salary);
+
+explain select titles.emp_no,dept_no,title from (dept_emp join titles on dept_emp.emp_no = titles.emp_no) where titles.emp_no in (select emp_no from salaries where salary > 115000);
++----+--------------+-------------+------------+-------+---------------+--------------+---------+--------------------+-------+----------+-----------------------+
+| id | select_type  | table       | partitions | type  | possible_keys | key          | key_len | ref                | rows  | filtered | Extra                 |
++----+--------------+-------------+------------+-------+---------------+--------------+---------+--------------------+-------+----------+-----------------------+
+|  1 | SIMPLE       | <subquery2> | NULL       | ALL   | NULL          | NULL         | NULL    | NULL               |  NULL |   100.00 | NULL                  |
+|  1 | SIMPLE       | titles      | NULL       | ref   | emp_no        | emp_no       | 4       | <subquery2>.emp_no |     1 |   100.00 | NULL                  |
+|  1 | SIMPLE       | dept_emp    | NULL       | ref   | PRIMARY       | PRIMARY      | 4       | <subquery2>.emp_no |  3316 |   100.00 | Using index           |
+|  2 | MATERIALIZED | salaries    | NULL       | range | index_salary  | index_salary | 5       | NULL               | 13162 |   100.00 | Using index condition |
++----+--------------+-------------+------------+-------+---------------+--------------+---------+--------------------+-------+----------+-----------------------+
+
+explain select distinct dept_no,count(emp_no) from dept_emp where emp_no in (select emp_no from salaries where salary > 115000) group by dept_no;
++----+--------------+-------------+------------+--------+---------------+--------------+---------+-------------------------+--------+----------+-----------------------------------------------------------+
+| id | select_type  | table       | partitions | type   | possible_keys | key          | key_len | ref                     | rows   | filtered | Extra                                                     |
++----+--------------+-------------+------------+--------+---------------+--------------+---------+-------------------------+--------+----------+-----------------------------------------------------------+
+|  1 | SIMPLE       | dept_emp    | NULL       | index  | PRIMARY       | PRIMARY      | 8       | NULL                    | 331603 |   100.00 | Using where; Using index; Using temporary; Using filesort |
+|  1 | SIMPLE       | <subquery2> | NULL       | eq_ref | <auto_key>    | <auto_key>   | 4       | company.dept_emp.emp_no |      1 |   100.00 | NULL                                                      |
+|  2 | MATERIALIZED | salaries    | NULL       | range  | index_salary  | index_salary | 5       | NULL                    |  13162 |   100.00 | Using index condition                                     |
++----+--------------+-------------+------------+--------+---------------+--------------+---------+-------------------------+--------+----------+-----------------------------------------------------------+
+
+
+			Now it has reduce a large number of rows in salaries to be examined to get the output and filtered percentage also has got increased to the highest, hence it will increase performance.
+			
+			So final decision is creating an index on attribute salary of table salaries will speed up the above 2 queries.
+			
+	
+
+
+
+
+
+
+
+
+	6#) without index --->
+explain select first_name,last_name,hire_date,round(datediff(CURDATE(),birth_date)/366) as age,round(datediff(CURDATE(),hire_date)/366) as years_of_service from employees where round(datediff(CURDATE(),birth_date)/366) > 50 and round(datediff(CURDATE(),hire_date)/366) > 10;
++----+-------------+-----------+------------+------+---------------+------+---------+------+--------+----------+-------------+
+| id | select_type | table     | partitions | type | possible_keys | key  | key_len | ref  | rows   | filtered | Extra       |
++----+-------------+-----------+------------+------+---------------+------+---------+------+--------+----------+-------------+
+|  1 | SIMPLE      | employees | NULL       | ALL  | NULL          | NULL | NULL    | NULL | 300024 |   100.00 | Using where |
++----+-------------+-----------+------------+------+---------------+------+---------+------+--------+----------+-------------+
+		It has to check al the rows of the employees table which is not efficient.
+		
+		
+		with index --->
+		create index index_dob_hire on employees(birth_date,hire_date);
+		drop index index_dob_hire on employees;
+		create index index_dob on employees(birth_date);
+		drop index index_dob on employees;
+		create index index_hire on employees(hire_date);
+		drop index index_hire on employees;
+		create index nik_index on employees(first_name,last_name);
+		
+		In all 3 types of the query do not use any of the indexes. Although it has a where clause, adding an index on the same table which it is retrieving does not make any difference. Still it has to check all the rows.
+		And also already it has the highest filtered percentage.
+		This will not make any difference to the query. Although there is a where cluase.
+		
+		So final decision is this query do not need any indexes.
+		
+		
+		
+		
+		
+
+
+		
+	7#) without index --->
+explain select first_name,last_name from employees where emp_no not in (select emp_no from dept_emp where dept_no in (select dept_no from departments where dept_name='Human Resources'));
++----+-------------+-------------+------------+-------+---------------+---------+---------+------+--------+----------+-----------------------------------------------------------------+
+| id | select_type | table       | partitions | type  | possible_keys | key     | key_len | ref  | rows   | filtered | Extra                                                           |
++----+-------------+-------------+------------+-------+---------------+---------+---------+------+--------+----------+-----------------------------------------------------------------+
+|  1 | PRIMARY     | employees   | NULL       | ALL   | NULL          | NULL    | NULL    | NULL | 300024 |   100.00 | Using where                                                     |
+|  2 | SUBQUERY    | departments | NULL       | ALL   | PRIMARY       | NULL    | NULL    | NULL |      9 |    11.11 | Using where                                                     |
+|  2 | SUBQUERY    | dept_emp    | NULL       | index | PRIMARY       | PRIMARY | 8       | NULL | 331603 |    10.00 | Using where; Using index; Using join buffer (Block Nested Loop) |
++----+-------------+-------------+------------+-------+---------------+---------+---------+------+--------+----------+-----------------------------------------------------------------+
+		Here employees table rows will not be able to reduced since alread it has the highest filtered percentage.
+		But department table rows and dept_emp rows can be reduced.
+		
+		
+		With index --->
+		create index index_dept_name  on departments(dept_name);
+		create index index_dept_no on dept_emp(dept_no);
+explain select first_name,last_name from employees where emp_no not in (select emp_no from dept_emp where dept_no in (select dept_no from departments where dept_name='Human Resources'));
++----+-------------+-------------+------------+------+-------------------------+-----------------+---------+-----------------------------+--------+----------+-------------+
+| id | select_type | table       | partitions | type | possible_keys           | key             | key_len | ref                         | rows   | filtered | Extra       |
++----+-------------+-------------+------------+------+-------------------------+-----------------+---------+-----------------------------+--------+----------+-------------+
+|  1 | PRIMARY     | employees   | NULL       | ALL  | NULL                    | NULL            | NULL    | NULL                        | 300024 |   100.00 | Using where |
+|  2 | SUBQUERY    | departments | NULL       | ref  | PRIMARY,index_dept_name | index_dept_name | 43      | const                       |      1 |   100.00 | NULL        |
+|  2 | SUBQUERY    | dept_emp    | NULL       | ref  | PRIMARY,index_dept_no   | index_dept_no   | 4       | company.departments.dept_no |  36845 |   100.00 | NULL        |
++----+-------------+-------------+------------+------+-------------------------+-----------------+---------+-----------------------------+--------+----------+-------------+
+Now it has reduced the number of rows and filtered percentages has increased.
+
+So using index index_dept_name  on table departments(ATTRIBUTE : dept_name) and index index_dept_no on table dept_emp(ATTRIBUTE : dept_no) will speed up the query.
+		
+		
+	
+
+
+
+
+
+
+
+
+	8#) without index --->
+explain select first_name,last_name from employees where emp_no in (select emp_no from salaries where salary > (select max(salary) from salaries where emp_no in (select emp_no from dept_emp where dept_no in (select dept_no from departments where dept_name='Finance'))));
++----+--------------+-------------+------------+--------+---------------+------------+---------+-----------------------------------------------------+--------+----------+---------------------------------------+
+| id | select_type  | table       | partitions | type   | possible_keys | key        | key_len | ref                                                 | rows   | filtered | Extra                                 |
++----+--------------+-------------+------------+--------+---------------+------------+---------+-----------------------------------------------------+--------+----------+---------------------------------------+
+|  1 | PRIMARY      | employees   | NULL       | ALL    | PRIMARY       | NULL       | NULL    | NULL                                                | 300024 |   100.00 | Using where                           |
+|  1 | PRIMARY      | <subquery2> | NULL       | eq_ref | <auto_key>    | <auto_key> | 4       | company.employees.emp_no                            |      1 |   100.00 | NULL                                  |
+|  2 | MATERIALIZED | salaries    | NULL       | ALL    | NULL          | NULL       | NULL    | NULL                                                | 946986 |    33.33 | Using where                           |
+|  3 | SUBQUERY     | departments | NULL       | ALL    | PRIMARY       | NULL       | NULL    | NULL                                                |      9 |    11.11 | Using where; Start temporary          |
+|  3 | SUBQUERY     | salaries    | NULL       | ALL    | NULL          | NULL       | NULL    | NULL                                                | 946986 |   100.00 | Using join buffer (Block Nested Loop) |
+|  3 | SUBQUERY     | dept_emp    | NULL       | eq_ref | PRIMARY       | PRIMARY    | 8       | company.salaries.emp_no,company.departments.dept_no |      1 |   100.00 | Using index; End temporary            |
++----+--------------+-------------+------------+--------+---------------+------------+---------+-----------------------------------------------------+--------+----------+---------------------------------------+
+		
+		
+		with index --->
+		create index index_dept_name on departments(dept_name);
+		create index index_salary on salaries(salary);
++----+--------------+-------------+------------+--------+-------------------------+-----------------+---------+-----------------------------------------------------+--------+----------+---------------------------------------+
+| id | select_type  | table       | partitions | type   | possible_keys           | key             | key_len | ref                                                 | rows   | filtered | Extra                                 |
++----+--------------+-------------+------------+--------+-------------------------+-----------------+---------+-----------------------------------------------------+--------+----------+---------------------------------------+
+|  1 | PRIMARY      | <subquery2> | NULL       | ALL    | NULL                    | NULL            | NULL    | NULL                                                |   NULL |   100.00 | NULL                                  |
+|  1 | PRIMARY      | employees   | NULL       | eq_ref | PRIMARY                 | PRIMARY         | 4       | <subquery2>.emp_no                                  |      1 |   100.00 | NULL                                  |
+|  2 | MATERIALIZED | salaries    | NULL       | range  | index_salary            | index_salary    | 5       | NULL                                                |    539 |   100.00 | Using where                           |
+|  3 | SUBQUERY     | departments | NULL       | ref    | PRIMARY,index_dept_name | index_dept_name | 43      | const                                               |      1 |   100.00 | Start temporary                       |
+|  3 | SUBQUERY     | salaries    | NULL       | ALL    | NULL                    | NULL            | NULL    | NULL                                                | 946986 |   100.00 | Using join buffer (Block Nested Loop) |
+|  3 | SUBQUERY     | dept_emp    | NULL       | eq_ref | PRIMARY                 | PRIMARY         | 8       | company.salaries.emp_no,company.departments.dept_no |      1 |   100.00 | Using index; End temporary            |
++----+--------------+-------------+------------+--------+-------------------------+-----------------+---------+-----------------------------------------------------+--------+----------+---------------------------------------+
+Now it has reduced the number of rows and filtered percentages has increased to the highest.
+
+So using above 2 indexes on those attirbutes will speed up this query.
+
+
+
+
+
+
+		
+		
+		
+	9#) without index --->
+explain select first_name,last_name from employees where emp_no in (select emp_no from salaries where salary > (select avg(salary) from salaries));
++----+--------------+-------------+------------+--------+---------------+------------+---------+--------------------------+--------+----------+-------------+
+| id | select_type  | table       | partitions | type   | possible_keys | key        | key_len | ref                      | rows   | filtered | Extra       |
++----+--------------+-------------+------------+--------+---------------+------------+---------+--------------------------+--------+----------+-------------+
+|  1 | PRIMARY      | employees   | NULL       | ALL    | PRIMARY       | NULL       | NULL    | NULL                     | 300024 |   100.00 | Using where |
+|  1 | PRIMARY      | <subquery2> | NULL       | eq_ref | <auto_key>    | <auto_key> | 4       | company.employees.emp_no |      1 |   100.00 | NULL        |
+|  2 | MATERIALIZED | salaries    | NULL       | ALL    | NULL          | NULL       | NULL    | NULL                     | 946986 |    33.33 | Using where |
+|  3 | SUBQUERY     | salaries    | NULL       | ALL    | NULL          | NULL       | NULL    | NULL                     | 946986 |   100.00 | NULL        |
++----+--------------+-------------+------------+--------+---------------+------------+---------+--------------------------+--------+----------+-------------+
+
+		with index ---->
+		create index index_salary on salaries(salary);
+explain select first_name,last_name from employees where emp_no in (select emp_no from salaries where salary > (select avg(salary) from salaries));
++----+--------------+-------------+------------+--------+---------------+--------------+---------+--------------------------+--------+----------+-------------+
+| id | select_type  | table       | partitions | type   | possible_keys | key          | key_len | ref                      | rows   | filtered | Extra       |
++----+--------------+-------------+------------+--------+---------------+--------------+---------+--------------------------+--------+----------+-------------+
+|  1 | PRIMARY      | employees   | NULL       | ALL    | PRIMARY       | NULL         | NULL    | NULL                     | 300024 |   100.00 | Using where |
+|  1 | PRIMARY      | <subquery2> | NULL       | eq_ref | <auto_key>    | <auto_key>   | 4       | company.employees.emp_no |      1 |   100.00 | NULL        |
+|  2 | MATERIALIZED | salaries    | NULL       | ALL    | index_salary  | NULL         | NULL    | NULL                     | 946986 |    51.73 | Using where |
+|  3 | SUBQUERY     | salaries    | NULL       | index  | NULL          | index_salary | 5       | NULL                     | 946986 |   100.00 | Using index |
++----+--------------+-------------+------------+--------+---------------+--------------+---------+--------------------------+--------+----------+-------------+	
+		Now its filtered percentages has increased but not to the highest.
+		
+		so final decision is to speed up this query we can use the above index on salaries.
+		
+		
+		
+		
+		
+		
+		
+		
+	10#) without index --->
+explain select ((select avg(salary) from salaries) - (select avg(salary) from salaries where emp_no in (select emp_no from titles where title='Senior Engineer'))) as avg_difference;
++----+-------------+----------+------------+--------+----------------+---------+---------+-------------------------------+--------+----------+----------------+
+| id | select_type | table    | partitions | type   | possible_keys  | key     | key_len | ref                           | rows   | filtered | Extra          |
++----+-------------+----------+------------+--------+----------------+---------+---------+-------------------------------+--------+----------+----------------+
+|  1 | PRIMARY     | NULL     | NULL       | NULL   | NULL           | NULL    | NULL    | NULL                          |   NULL |     NULL | No tables used |
+|  3 | SUBQUERY    | salaries | NULL       | ALL    | NULL           | NULL    | NULL    | NULL                          | 946986 |   100.00 | NULL           |
+|  3 | SUBQUERY    | titles   | NULL       | eq_ref | PRIMARY,emp_no | PRIMARY | 56      | const,company.salaries.emp_no |      1 |   100.00 | Using index    |
+|  2 | SUBQUERY    | salaries | NULL       | ALL    | NULL           | NULL    | NULL    | NULL                          | 946986 |   100.00 | NULL           |
++----+-------------+----------+------------+--------+----------------+---------+---------+-------------------------------+--------+----------+----------------+
+
+select ((select avg(salary) from salaries) - (select avg(salary) from salaries where emp_no in (select emp_no from titles where title='Senior Engineer'))) as avg_difference;
++----------------+
+| avg_difference |
++----------------+
+|      3278.5232 |
++----------------+
+1 row in set (1.28 sec)
+
+		with index --->
+		create index sal_index on salaries(salary);
+explain select ((select avg(salary) from salaries) - (select avg(salary) from salaries where emp_no in (select emp_no from titles where title='Senior Engineer'))) as avg_difference;
++----+-------------+----------+------------+--------+----------------+-----------+---------+-------------------------------+--------+----------+----------------+
+| id | select_type | table    | partitions | type   | possible_keys  | key       | key_len | ref                           | rows   | filtered | Extra          |
++----+-------------+----------+------------+--------+----------------+-----------+---------+-------------------------------+--------+----------+----------------+
+|  1 | PRIMARY     | NULL     | NULL       | NULL   | NULL           | NULL      | NULL    | NULL                          |   NULL |     NULL | No tables used |
+|  3 | SUBQUERY    | salaries | NULL       | ALL    | NULL           | NULL      | NULL    | NULL                          | 946986 |   100.00 | NULL           |
+|  3 | SUBQUERY    | titles   | NULL       | eq_ref | PRIMARY,emp_no | PRIMARY   | 56      | const,company.salaries.emp_no |      1 |   100.00 | Using index    |
+|  2 | SUBQUERY    | salaries | NULL       | index  | NULL           | sal_index | 5       | NULL                          | 946986 |   100.00 | Using index    |
++----+-------------+----------+------------+--------+----------------+-----------+---------+-------------------------------+--------+----------+----------------+
+
+select ((select avg(salary) from salaries) - (select avg(salary) from salaries where emp_no in (select emp_no from titles where title='Senior Engineer'))) as avg_difference;
++----------------+
+| avg_difference |
++----------------+
+|      3278.5232 |
++----------------+
+1 row in set (0.83 sec) --> performanace has improved
+
+		Already it has reached the highest filered percentage. But as we have to select only one attribute from salaries table, creating an index on that will show a better performance improvement. 
+		
+		So creating the above index will increase the peroformance.
+		
+		
+		
+		
+		
+		
+		
+		
+7) The index will slow down the operation insert/update/delete. Hence it will increase the query execution time.
+	
+		
+
+	
+

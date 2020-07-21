@@ -1,0 +1,324 @@
+2) select last_name,count(last_name) from employees group by last_name order by count(last_name) desc limit 10;
++-----------+------------------+
+| last_name | count(last_name) |
++-----------+------------------+
+| Baba      |              226 |
+| Coorg     |              223 |
+| Gelosh    |              223 |
+| Farris    |              222 |
+| Sudbeck   |              222 |
+| Adachi    |              221 |
+| Osgood    |              220 |
+| Neiman    |              218 |
+| Mandell   |              218 |
+| Masada    |              218 |
++-----------+------------------+
+
+
+3) select dept_no,count(emp_no) from dept_emp where emp_no in (select emp_no from titles where title='Engineer' or title='Senior Engineer') group by dept_no;
++---------+---------------+
+| dept_no | count(emp_no) |
++---------+---------------+
+| d004    |         62621 |
+| d005    |         73264 |
+| d006    |         17589 |
+| d008    |          3815 |
+| d009    |          2971 |
++---------+---------------+
+
+4) select emp_no,first_name,last_name from employees where emp_no in (select distinct emp_no from titles where title='Senior Engineer' and emp_no in (select emp_no from dept_manager where emp_no in (select emp_no from employees where sex='F')));
++--------+------------+-----------+
+| emp_no | first_name | last_name |
++--------+------------+-----------+
+| 110344 | Rosine     | Cools     |
+| 110800 | Sanjoy     | Quadeer   |
++--------+------------+-----------+
+
+5) select titles.emp_no,dept_no,title from (dept_emp join titles on dept_emp.emp_no = titles.emp_no) where titles.emp_no in (select emp_no from salaries where salary > 115000);
++--------+---------+--------------------+
+| emp_no | dept_no | title              |
++--------+---------+--------------------+
+| 201834 | d007    | Senior Staff       |
+| 201834 | d007    | Staff              |
+| 201856 | d007    | Senior Staff       |
+| 201856 | d007    | Staff              |
+| 201908 | d007    | Senior Staff       |
+| 201908 | d007    | Staff              |
+| 202110 | d007    | Senior Staff       |
+| 202110 | d007    | Staff              |
+| 202137 | d004    | Engineer           |
+| 202137 | d004    | Senior Engineer    |
+| 202218 | d002    | Senior Staff       |
+| 202218 | d002    | Staff              |
+| 202254 | d007    | Staff              |
+| 202338 | d007    | Senior Staff       |
+| 202349 | d007    | Senior Staff       |
+| 202349 | d007    | Staff              |
+| 202385 | d007    | Senior Staff       |
+| 202385 | d007    | Staff              |
+| 202614 | d007    | Senior Staff       | (Only a part of the results are inlcuded)
+
+(since it did not specifically said to add departments names I only added the dept_no)
+
+   
+select distinct dept_no,count(emp_no) from dept_emp where emp_no in (select emp_no from salaries where salary > 115000) group by dept_no;
++---------+---------------+
+| dept_no | count(emp_no) |
++---------+---------------+
+| d001    |           313 |
+| d002    |           220 |
+| d003    |            11 |
+| d004    |            92 |
+| d005    |           110 |
+| d006    |             8 |
+| d007    |          2176 |
+| d008    |            28 |
+| d009    |           122 | (Here the repeated employee numbers(emp_no) in above query has not counted.
++---------+---------------+ one emp_no was counted only once.)
+
+6)  select first_name,last_name,hire_date,
+	round(datediff(CURDATE(),birth_date)/366) as age,
+	round(datediff(CURDATE(),hire_date)/366) as years_of_service
+	from employees where round(datediff(CURDATE(),birth_date)/366) > 50 and round(datediff(CURDATE(),hire_date)/366) > 10;
+	
+	(here age and years of service are calculated to the date  2020-03-14)
++----------------+------------------+------------+------+------------------+
+| first_name     | last_name        | hire_date  | age  | years_of_service |
++----------------+------------------+------------+------+------------------+
+| Georgi         | Facello          | 1986-06-26 |   66 |               34 |
+| Bezalel        | Simmel           | 1985-11-21 |   56 |               34 |
+| Parto          | Bamford          | 1986-08-28 |   60 |               33 |
+| Chirstian      | Koblick          | 1986-12-01 |   66 |               33 |
+| Kyoichi        | Maliniak         | 1989-09-12 |   65 |               30 |
+| Anneke         | Preusig          | 1989-06-02 |   67 |               31 |
+| Tzvetan        | Zielinski        | 1989-02-10 |   63 |               31 |
+| Saniya         | Kalloufi         | 1994-09-15 |   62 |               25 |
+| Sumant         | Peac             | 1985-02-18 |   68 |               35 |
+| Duangkaew      | Piveteau         | 1989-08-24 |   57 |               30 |
+| Mary           | Sluis            | 1990-01-22 |   66 |               30 |
+| Patricio       | Bridgland        | 1992-12-18 |   59 |               27 |
+| Eberhardt      | Terkki           | 1985-10-20 |   57 |               34 |
+| Berni          | Genin            | 1987-03-11 |   64 |               33 |
+| Guoxiang       | Nooteboom        | 1987-07-02 |   60 |               33 |
+| Kazuhito       | Cappelletti      | 1995-01-27 |   59 |               25 |
+| Cristinel      | Bouloucos        | 1993-08-03 |   62 |               27 |
+| Kazuhide       | Peha             | 1987-04-03 |   66 |               33 |
+| Lillian        | Haddadi          | 1999-04-30 |   67 |               21 |
+| Mayuko         | Warwick          | 1991-01-26 |   67 |               29 |
+| Ramzi          | Erde             | 1988-02-10 |   60 |               32 |
+| Shahaf         | Famili           | 1995-08-22 |   68 |               25 |
+| Bojan          | Montemayor       | 1989-12-17 |   66 |               30 |
+| Suzette        | Pettey           | 1997-05-19 |   61 |               23 |
+| Prasadram      | Heyers           | 1987-08-17 |   61 |               33 | (Only a part of the results are inlcuded)
+
+
+7) select first_name,last_name from employees where emp_no not in (select emp_no from dept_emp where dept_no in (select dept_no from departments where dept_name='Human Resources'));
++----------------+------------------+
+| first_name     | last_name        |
++----------------+------------------+
+| Georgi         | Facello          |
+| Bezalel        | Simmel           |
+| Parto          | Bamford          |
+| Chirstian      | Koblick          |
+| Anneke         | Preusig          |
+| Tzvetan        | Zielinski        |
+| Saniya         | Kalloufi         |
+| Sumant         | Peac             |
+| Duangkaew      | Piveteau         |
+| Mary           | Sluis            |
+| Patricio       | Bridgland        |
+| Berni          | Genin            |
+| Guoxiang       | Nooteboom        |
+| Kazuhito       | Cappelletti      |
+| Cristinel      | Bouloucos        |
+| Kazuhide       | Peha             |
+| Lillian        | Haddadi          |
+| Mayuko         | Warwick          |
+| Ramzi          | Erde             |
+| Shahaf         | Famili           |
+| Bojan          | Montemayor       |
+| Suzette        | Pettey           |
+| Prasadram      | Heyers           |
+| Yongqiao       | Berztiss         | (Only a part of the results are inlcuded)
+
+
+8) select first_name,last_name from employees where emp_no in (select emp_no from salaries where salary > (select max(salary) from salaries where emp_no in (select emp_no from dept_emp where dept_no in (select dept_no from departments where dept_name='Finance'))));
++------------+--------------+
+| first_name | last_name    |
++------------+--------------+
+| Charmane   | Griswold     |
+| Boalin     | Rosen        |
+| Nikolaus   | Businaro     |
+| JoAnne     | Matheson     |
+| Wonhee     | Pagter       |
+| Tadanori   | Sudbeck      |
+| Weicheng   | Hatcliff     |
+| Chaitali   | Baik         |
+| Mitsuyuki  | Stanfel      |
+| Dines      | Giaccio      |
+| Arnd       | Junot        |
+| Heping     | Brender      |
+| Sanjai     | Luders       |
+| Honesty    | Mukaidono    |
+| Honglan    | Otillio      |
+| Satoru     | Gruenwald    |
+| Rance      | Chinin       |
+| Eberhardt  | Gubsky       |
+| Weijing    | Chenoweth    |
+| Florina    | Tchuente     |
+| Jungsoon   | Brendel      |
+| Shin       | Birdsall     |
+| Mohammed   | Moehrke      |
+| Eldridge   | Heiserman    |
+| Huiqun     | Birke        |
+| Leaf       | Menyhert     |
+| Zhanqiu    | Muntz        |
+| Guenter    | Ranai        |
+| Seongbin   | Mitsuhashi   |
+| Qingxiang  | Piancastelli |
+| Izaskun    | Wissmann     |
+| Akemi      | Warwick      |
+| Masato     | Heering      |
+| Ghassan    | Birta        |
+| Taiji      | Malinowski   |
+| Lidong     | Meriste      |
++------------+--------------+
+
+9) select first_name,last_name from employees where emp_no in (select emp_no from salaries where salary > (select avg(salary) from salaries));
++----------------+------------------+
+| first_name     | last_name        |
++----------------+------------------+
+| Krassimir      | Linares          |
+| Wonhee         | Perl             |
+| Nidapan        | Provine          |
+| Margareta      | Petersohn        |
+| Urs            | Krone            |
+| Franziska      | Marrevee         |
+| Eishiro        | Garigliano       |
+| Mary           | Gente            |
+| Chinhyun       | Hiyoshi          |
+| Shmuel         | Sudkamp          |
+| Vivian         | Chachaty         |
+| Zengping       | Poehlman         |
+| Toshiki        | Szilard          |
+| Matt           | Benner           |
+| Ortrun         | Bolsens          |
+| Waiman         | Genin            |
+| Jaana          | Besselaar        |
+| Alagu          | Kabayashi        |
+| Fay            | Genin            |
+| Elvia          | Jenevein         |
+| Uzi            | Rabehasaina      |
+| Sadegh         | Syang            |
+| Mong           | Tzvieli          |
+| Guther         | Cooke            | (Only a part of the results are inlcuded)
+
+10)  select ((select avg(salary) from salaries) - (select avg(salary) from salaries where emp_no in (select emp_no from titles where title='Senior Engineer'))) as avg_difference;
++----------------+
+| avg_difference |
++----------------+
+|      3297.7505 |
++----------------+
+
+
+11) create view currentDeptEmp as
+	select emp_no,dept_no from dept_emp where from_date < CURDATE() and to_date > CURDATE();
+
+	--**(Employees numbers who do not work in a department currently)**--
+	create view EmpWithoutCurrentDep as
+	select emp_no from dept_emp where to_date < CURDATE();
+	
+	(since it did not specifically said to add departments names I only added the dept_no)
+
+	
+12) select emp_no,dept_no from dept_emp where from_date < CURDATE() and to_date > CURDATE();
++--------+---------+
+| emp_no | dept_no |
++--------+---------+
+|  10001 | d005    |
+|  10002 | d007    |
+|  10003 | d004    |
+|  10004 | d004    |
+|  10005 | d003    |
+|  10006 | d005    |
+|  10007 | d008    |
+|  10009 | d006    |
+|  10010 | d006    |
+|  10012 | d005    |
+|  10013 | d003    |
+|  10014 | d005    |
+|  10016 | d007    |
+|  10017 | d001    |
+|  10018 | d004    |
+|  10019 | d008    |
+|  10020 | d004    |
+|  10022 | d005    |
+|  10023 | d005    |
+|  10024 | d004    | (Only a part of the results are inlcuded)
+
+
+select emp_no from dept_emp where to_date < CURDATE();
++--------+
+| emp_no |
++--------+
+|  10008 |
+|  10010 |
+|  10011 |
+|  10015 |
+|  10018 |
+|  10021 |
+|  10025 |
+|  10028 |
+|  10029 |
+|  10033 |
+|  10034 |
+|  10040 |
+|  10042 |
+|  10048 |
+|  10050 |
+|  10055 | (Only a part of the results are inlcuded)
+
+13) create table printSalaryChange(
+		emp_no int,
+		new_salary int,
+		old_salary int,
+		difference int
+	);
+
+	delimiter |
+	create trigger print_salary_change
+	before update on salaries
+	for each row
+	insert into printSalaryChange values(new.emp_no,new.salary,(select salary from salaries where emp_no=new.emp_no and from_date=new.from_date and to_date=new.to_date),(new.salary-(select salary from salaries where emp_no=new.emp_no and from_date=new.from_date and to_date=to_date)));
+	|
+	delimiter ;
+	
+	(Here the calculated details are added to a seperate table so that it can be viewed seperately)
+	
+RESULTS:	
+	update salaries set salary=salary+1000 where emp_no=201772;
+	select * from printSalaryChange;
++--------+------------+------------+------------+
+| emp_no | new_salary | old_salary | difference |
++--------+------------+------------+------------+
+| 201772 |      55369 |      54369 |       1000 |
+| 201772 |      58497 |      57497 |       1000 |
+| 201772 |      60306 |      59306 |       1000 |
++--------+------------+------------+------------+
+
+14) delimiter |
+	create trigger salary_error 
+	before update on salaries
+	for each row
+	begin
+		if new.salary > (select salary from salaries where emp_no=new.emp_no and from_date=new.from_date and to_date=new.to_date)*1.1 then
+			SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Incorrect Salary';
+		end if;
+	end |
+	delimiter ;
+	
+	(Here I considered that, if an update happens it should happen to all given employee numbers. (If there is 3 entries with same emp_no, all 3 will be affected.))
+	(`raiserror` key word does not supported in my mysql version so I used the `signal` keyword)
+	
+RESULTS:	update salaries set salary=salary+8000 where emp_no=201772;
+			ERROR 1644 (45000): Incorrect Salary
