@@ -1,0 +1,1 @@
+cmd_/home/dulanjali/CO327-Project/hello.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/dulanjali/CO327-Project/hello.ko /home/dulanjali/CO327-Project/hello.o /home/dulanjali/CO327-Project/hello.mod.o ;  true

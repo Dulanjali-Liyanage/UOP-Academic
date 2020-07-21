@@ -1,0 +1,1 @@
+cmd_/home/dulanjali/CO327-Project/jiffies.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/dulanjali/CO327-Project/jiffies.ko /home/dulanjali/CO327-Project/jiffies.o /home/dulanjali/CO327-Project/jiffies.mod.o ;  true
