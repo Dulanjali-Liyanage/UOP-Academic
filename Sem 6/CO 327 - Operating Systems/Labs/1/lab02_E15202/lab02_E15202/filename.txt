@@ -1,0 +1,47 @@
+Multiprocessing
+Exercise 1
+1) When the top command is running, press M (upper-case) to display processes sorted by memory usage
+
+2) systemd
+
+Exercise 2
+1) Order is not always the same. Parent may continues to execute concurrently with the children or parent can wait until some all of its children has terminated by printing their message. So we cannot say a specific order to print messages between parent and children. It only show what the OS happened to do at that time.
+
+2) It will create 7 children
+
+
+Exercise 3
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main(void){
+	int pid;
+	pid = fork();
+	if(pid < 0){
+		perror("fork");
+		exit(1);
+	}
+	if(pid == 0){
+		puts("This is the child process");
+	}else{
+		wait(NULL);		
+		puts("This is the parent process");
+	}
+	return 0;
+}
+
+
+Exercise 4
+1) It does no print the message “Program ls has terminated”
+
+2)
+
+Exercise 5
+1)
+2) First one client is connected to the server and the server accept that client. While the first client is running on the server another client tries to connect to the server. That new client will be connected with the server, but the server will not accept that client until the first client is exited.
+
+3) It gives an error in binding to that specific port 12345.
+				
