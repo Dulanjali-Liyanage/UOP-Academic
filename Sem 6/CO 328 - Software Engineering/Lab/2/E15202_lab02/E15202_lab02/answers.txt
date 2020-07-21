@@ -1,0 +1,32 @@
+Docker Lab Part 2
+
+E/15/202
+
+
+1) Typing localhost/ in the browser
+
+3) docker run -p80:3000 --env colour="Red" --env message="Hello There" co328/lab2/app2
+       (Here co328/lab2/app2 means the tag I gave to the created image)
+
+
+
+4) docker run -p80:3000 --env colour="Yellow" --env message="Hello There" co328/lab2/app3
+       (Here co328/lab2/app3 means the tag I gave to the created image)
+
+
+
+6) Unable to access the previously uploaded picture. 
+A Docker image is a collection of read-only layers. When we launch a container from an image, Docker adds a read-write layer to the top of that stack of read-only layers.
+Anytime a file changed,Docker makes a copy of the file from the read-only layers up into the top read-write layer. This laeves the original(read-only) file unchanged.
+When a container is deleted, that top read-write layer is lost.
+So any changes made after the container was launched will be gone.
+ (If our application need to retain data, most common way is Docker volume.)
+
+
+
+7) docker volume create --name app4-volume
+   docker run -it --name app4-data -p80:3000 -v app4-volume:/upload co328/lab2/app4
+(Here co328/lab2/app4 means the tag I gave to the created image)
+
+
+8) https://hub.docker.com/r/dulanjali/app4
